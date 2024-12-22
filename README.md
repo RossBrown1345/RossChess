@@ -1,2 +1,13 @@
-# RossChess-
-continuation of RossChess!
+### RossChess-
+#
+# continuation of RossChess!
+# 
+# remake RossChess! but better
+#
+# remake Joshua, but better
+#
+# get real job
+#
+#
+#
+#
