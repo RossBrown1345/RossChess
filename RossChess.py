@@ -18,7 +18,7 @@ score : 1
 Rook
 score : 5
 
-Knight
+Horse
 score: 3
 
 Bishop
@@ -35,6 +35,10 @@ isInCheck
 
 make board methods
 capturing and score keeping
+
+have a list containing all pieces, to allow the same pieces to be moved without creating new instances
+
+backend will use 0 - 7, for x and y, front end will include A to H and 1 to 8
 '''
 
 
@@ -62,10 +66,59 @@ class Chess():
         print("\n")
         time.sleep(1)
         self.Board = [["" for x in range(8)] for y in range(8)] ### create 8*8 2D list to act as the board
-        self.displayBoard()
+        self.Pieces = [] ### this list contains all pieces
+        self.createPieces() ### create all pieces and add to Pieces
+        self.populateBoard() ### populate board
+        self.displayBoard() ### display board
 
-    def displayBoard(self):
+        
+        '''testPiece = self.getPieceFromTuple((4,6))
+        testPiece.move((4,4)) # test move
+        self.populateBoard()
+        self.displayBoard()'''
+
+    def displayPieces(self):
+        for piece in self.Pieces:
+            print(piece.x,piece.y)
+
+    def displayBoard(self): ### display string representation of board
         print(self.__str__())
+
+    def createPieces(self):
+        for i in range(0,8):### populate Pawns
+            self.Pieces.append(Pawn(i,1,"Pawn","Black",0))
+            self.Pieces.append(Pawn(i,6,"Pawn","White",0))
+
+        self.Pieces.append(Rook(0,0,"Rook","Black",0)) ### populate all 4 Rooks
+        self.Pieces.append(Rook(0,7,"Rook","Black",0))
+        self.Pieces.append(Rook(7,0,"Rook","White",0))
+        self.Pieces.append(Rook(7,7,"Rook","White",0))
+
+        self.Pieces.append(Rook(1,0,"Horse","Black",0)) ### populate all 4 Horses
+        self.Pieces.append(Rook(6,0,"Horse","Black",0))
+        self.Pieces.append(Rook(1,7,"Horse","White",0))
+        self.Pieces.append(Rook(6,7,"Horse","White",0))
+
+        self.Pieces.append(Rook(2,0,"Bishop","Black",0)) ### populate all 4 Bishops
+        self.Pieces.append(Rook(5,0,"Bishop","Black",0))
+        self.Pieces.append(Rook(2,7,"Bishop","White",0))
+        self.Pieces.append(Rook(5,7,"Bishop","White",0))
+
+        self.Pieces.append(Rook(4,0,"King","Black",0)) ### populate all 4 Royals
+        self.Pieces.append(Rook(3,0,"Queen","Black",0))
+        self.Pieces.append(Rook(4,7,"King","White",0))
+        self.Pieces.append(Rook(3,7,"Queen","White",0))
+
+    def populateBoard(self): ### fill the board with the pieces
+        self.Board = [["" for x in range(8)] for y in range(8)]
+        for piece in self.Pieces:
+            self.Board[piece.y][piece.x] = piece
+
+    def getPieceFromTuple(self,inputLocation): ### get the chosen piece from the input location
+        for piece in self.Pieces:
+            startLoc = (piece.x,piece.y)
+            if startLoc == inputLocation: ### if the piece is present, return that piece
+                return piece
 
 
     def __str__(self): ###create a string representation of the game
@@ -100,11 +153,12 @@ class Chess():
             
 
 class Piece(): ### parent class for all pieces
-    def __init__(self,x,y,colour,moveCount):
+    def __init__(self,x,y,type,colour,moveCount):
         self.x = x
         self.y = y
+        self.type = type
         self.colour = colour
-        self.moveCount = 0
+        self.moveCount = 0 ### may need to change to moveCount, or remove all
 
     def getLocation(self):
         return (self.x, self.y)
@@ -112,6 +166,8 @@ class Piece(): ### parent class for all pieces
         return self.colour
     def getMoveCount(self):
         return self.moveCount
+    def getPieceType(self):
+        return self.type
 
 class Pawn(Piece):
     def __init__(self,x,y,type,colour,moveCount):
@@ -122,10 +178,9 @@ class Pawn(Piece):
         self.Position = (XPosition, YPosition) ### return a tuple of location
 
     def move(self,newLocation):
-        pass
+        self.x = newLocation[0]
+        self.y = newLocation[1]
 
-    def getPieceType(self):
-        return self.colour
     
 class Rook(Piece):
     def __init__(self,x,y,type,colour,moveCount):
@@ -135,7 +190,7 @@ class Rook(Piece):
         XPosition = (self.x * 80)
         self.Position = (XPosition, YPosition) ### return a tuple of location
 
-class Knight(Piece):
+class Horse(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
         self.Score = 3
