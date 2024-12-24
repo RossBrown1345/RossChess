@@ -30,3 +30,12 @@ i dont like the pieces having move methods, have the methods take the board stat
 possible, then have game manager move the piece. move method in pawn is fine for now
 
 whenever a piece is moved, you need to update its position
+
+
+for possible moves, return a list of all possible locations a piece can move to
+
+it will then be iterated through in a different method to check if input move is valid,
+
+for castling, check if move distance >1
+for en passant, check if valid rank and movecount of adjacent opp = 1 
+for promotion, make sure is opposite end of board

@@ -4,6 +4,26 @@
 
 then hang fire on GUI, work on possible moves for each piece
 
+possible moves for
+
+~~ pawns ~~
+horses
+bishops
+rooks
+queens
+kings
+castling
+promotion
+en passant
+
+
+
+
+
+
+
+
+
 return to GUI to allow for selection of pieces and highlighting possible moves
 
 
@@ -16,6 +36,12 @@ gameplay loop
 check when game over
 
 score keeping
+
+promotion
+
+castling
+
+en passant
 
 
 

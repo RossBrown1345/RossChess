@@ -146,7 +146,7 @@ class Chess():
                 self.Window.fill(DarkWhite,(i, j, 80, 80))
                 self.Window.fill(DarkGrey,(i, j + 80, 80, 80))
         for piece in self.Pieces: ### for every piece remaining, concat the colour and type, get image 
-            print(piece.GetColour() + piece.GetPieceType() + "at : " , piece.x , "," , piece.y)
+            #print(piece.GetColour() + piece.GetPieceType() + "at : " , piece.x , "," , piece.y)
             spriteString = piece.GetColour() + piece.GetPieceType()
             Image = pygame.image.load("sprites\\"+spriteString+".png")
             self.Window.blit(Image,piece.Position)
@@ -168,8 +168,11 @@ class Chess():
         if deadPiece != None: ### remove the deadpiece if there is one
             self.Pieces.remove(deadPiece)
         if chosenPiece != None:
+            chosenPiece.IncrementMoveCount()
             chosenPiece.SetLocation(endLoc)
-        print(chosenPiece.GetLocation())
+            chosenPiece.PossibleMoves(self.Pieces)
+            print(chosenPiece.PossibleMoves(self.Pieces))
+        #print(chosenPiece.GetLocation())
         
         #print(self.Pieces)
 
@@ -250,6 +253,9 @@ class Piece(): ### parent class for all pieces
     def PossibleMoves(self,board):
         ### method to be overided, board is the list Chess.Pieces,
         pass
+    
+    def IncrementMoveCount(self):
+        self.moveCount+=1
 
     ### getters
     def GetLocation(self): 
@@ -280,10 +286,59 @@ class Pawn(Piece):
         # if first move, allow option for 2 space forward
         # if opponent 1 space diagonal
         # so long as in bounds
+        ### the code for this can be slightly more exact as it is less mathematical
 
-        pass
+        (startX,startY) = self.GetLocation()
+        possibleMoves = []
+        oneSpacePossible = True
+        if self.GetMoveCount() > 0:
+            twoSpacePossible  = False
+        else:
+            twoSpacePossible = True
+
+        if self.GetColour() == "White": ##get white moves
+            oneSpace = (startX, startY -1) ## the four potential moves of a pawn, enpassant to be added later
+            twoSpace = (startX, startY - 2)
+            leftCap = (startX - 1 , startY - 1)
+            rightCap = (startX + 1, startY - 1)
+            for piece in board: ### search all the opp pieces
+                checkLoc = piece.GetLocation()
+                if checkLoc == twoSpace:
+                    twoSpacePossible = False
+                elif checkLoc == oneSpace:
+                    oneSpacePossible = False
+                if piece.GetColour() == "Black": ### check the black pieces and append possible captures
+                    if checkLoc == leftCap:
+                        possibleMoves.append(leftCap)
+                    elif checkLoc == rightCap:
+                        possibleMoves.append(rightCap)
+            if oneSpacePossible: ### append possible moves
+                possibleMoves.append(oneSpace)
+            if twoSpacePossible:
+                possibleMoves.append(twoSpace)
+            return possibleMoves
         
-    
+        else:
+            oneSpace = (startX, startY +1) ## the four potential moves of a pawn, enpassant to be added later
+            twoSpace = (startX, startY + 2)
+            leftCap = (startX - 1 , startY + 1)
+            rightCap = (startX + 1, startY + 1)
+            for piece in board: ### search all the opp pieces
+                checkLoc = piece.GetLocation()
+                if checkLoc == twoSpace:
+                    twoSpacePossible = False
+                elif checkLoc == oneSpace:
+                    oneSpacePossible = False
+                if piece.GetColour() == "White": ### check the white pieces and append possible captures
+                    if checkLoc == leftCap:
+                        possibleMoves.append(leftCap)
+                    elif checkLoc == rightCap:
+                        possibleMoves.append(rightCap)
+            if oneSpacePossible: ### append possible moves
+                possibleMoves.append(oneSpace)
+            if twoSpacePossible:
+                possibleMoves.append(twoSpace)
+            return possibleMoves
 
     
 class Rook(Piece):
@@ -296,7 +351,6 @@ class Rook(Piece):
         # if not moved, and empty spaces between it and King
         # who has also not moved, castle is allowed
         # so long as in bounds
-
         pass
 
 class Horse(Piece):
@@ -314,19 +368,32 @@ class Bishop(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
         self.Score = 3
-        
+
+    def PossibleMoves(self,board):
+    # up to 8 spaces diagonally
+    # so long as in bounds
+        pass
+
     
 class Queen(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
         self.Score = 9
-        
+    def PossibleMoves(self,board):
+    # combination of rook and bishop moves
+    # so long as in bounds
+        pass
     
 class King(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
         self.Score = 100
-        
+    
+    def PossibleMoves(self,board):
+    #1 move in any direction
+    # if movecount = 0 and rook with LOS has movecount = 0, allow castle
+    # so long as in bounds
+        pass
     
     def isCastleValid():
         pass
