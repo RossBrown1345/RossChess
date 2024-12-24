@@ -53,13 +53,37 @@ class Chess():
         self.CreatePieces() ### create all pieces and add to Pieces
         self.PopulateBoard() ### populate board
         self.DisplayBoard() ### display board
-        self.GUIWindow()
-
-        
-        '''testPiece = self.getPieceFromTuple((4,6))
-        testPiece.move((4,4)) # test move
-        self.populateBoard()
-        self.displayBoard()'''
+        self.StartGUIWindow() ### start GUI window
+    
+    def __str__(self): ###create a string representation of the game
+        BoardFormat = "| {:^2}{:^2}"
+        BoardAsString = "------------------------------------------------" + "\n"
+        for j in range(8):
+            for i in range(8):
+                CurrentPiece = self.Board[j][i]
+                if CurrentPiece != "":
+                    BoardAsString += BoardFormat.format(CurrentPiece.GetColour()[0], CurrentPiece.GetPieceType()[0])
+                else:
+                    BoardAsString += BoardFormat.format("","")
+                if j == 0 and i == 7:
+                    BoardAsString += "|" + "--8--" + "\n"
+                elif j == 1 and i == 7:
+                    BoardAsString += "|" + "--7--" + "\n"
+                elif j == 2 and i == 7:
+                    BoardAsString += "|" + "--6--" + "\n"
+                elif j == 3 and i == 7:
+                    BoardAsString += "|" + "--5--" + "\n"
+                elif j == 4 and i == 7:
+                    BoardAsString += "|" + "--4--" + "\n"
+                elif j == 5 and i == 7:
+                    BoardAsString += "|" + "--3--" + "\n"
+                elif j == 6 and i == 7:
+                    BoardAsString += "|" + "--2--" + "\n"
+                elif j == 7 and i == 7:
+                    BoardAsString += "|" + "--1--" + "\n"
+            BoardAsString += "------------------------------------------------" + "\n"
+        BoardAsString += "---A-----B-----C-----D-----E-----F-----G-----H---" + "\n"
+        return BoardAsString
 
     def OpeningSequence(self):
         print("\n")
@@ -82,91 +106,88 @@ class Chess():
         print("\n")
         time.sleep(1)
 
-    def GUIWindow(self):
+    def StartGUIWindow(self):
+        ### everythign for the GUI gameplay has to originate in here
         pygame.init() ### initialise pygame
         print("Loading.")
         WindowSize = 640 ### set the window size
+        self.Window = pygame.display.set_mode((WindowSize, WindowSize)) ### create window
+        self.Window.fill((255,255,255))
+        self.GUIUpdateBoard()
         run = True
-        Window = pygame.display.set_mode((WindowSize, WindowSize)) ### create window
-        Window.fill((255,255,255))
-        
-        self.GUIUpdateBoard(Window)
-        
-        GameMode = input("Please enter the number of players : > ") ### Main menu to ask for the gamemode
-        while GameMode != "2" and GameMode != "1" and GameMode != "0":
-            print("Please input a valid number, being 0, 1 or 2")
-            GameMode = input("Please enter the number of players : > ")
-
-        print(GameMode)
-
         while run:
             Event = pygame.event.poll()
             if Event.type == pygame.QUIT:
                 pygame.quit()
                 break
+            elif Event.type == pygame.MOUSEBUTTONDOWN:
 
+                self.MovePiece((6,6),(1,1))
 
+                self.GUIUpdateBoard()
+                self.PopulateBoard()
+                self.DisplayBoard()
 
-
-        Cyan = (0,255, 255) ### colour for available moves
-        Selectedpiece = False ### no piece is selected
-
-    def GUIUpdateBoard(self, Window):
+                # self.MakeMove()
+                
+    
+    def GUIUpdateBoard(self):
         print("Loading..")
         DarkGrey = (80, 80, 80)
         DarkWhite = (200, 200, 200)
-        Window.fill(DarkWhite)
+        self.Window.fill(DarkWhite)
         print("Loading...")
         for i in range(0,640,160):
             for j in range(0,640,160):  
-                Window.fill(DarkWhite,(i, j, 80, 80))
-                Window.fill(DarkGrey,(i, j + 80, 80, 80))
+                self.Window.fill(DarkWhite,(i, j, 80, 80))
+                self.Window.fill(DarkGrey,(i, j + 80, 80, 80))
         for i in range(80,720,160):
             for j in range(-80,720,160):  
-                Window.fill(DarkWhite,(i, j, 80, 80))
-                Window.fill(DarkGrey,(i, j + 80, 80, 80))
+                self.Window.fill(DarkWhite,(i, j, 80, 80))
+                self.Window.fill(DarkGrey,(i, j + 80, 80, 80))
+        for piece in self.Pieces: ### for every piece remaining, concat the colour and type, get image 
+            print(piece.GetColour() + piece.GetPieceType() + "at : " , piece.x , "," , piece.y)
+            spriteString = piece.GetColour() + piece.GetPieceType()
+            Image = pygame.image.load("sprites\\"+spriteString+".png")
+            self.Window.blit(Image,piece.Position)
+        pygame.display.update()
         print("Done!")
 
+    # define a method that will take a peice, move it to the desired location, and remove any opponent in that
+    # location from self.pieces
 
-        for piece in self.Pieces:
-            if piece.type == "Pawn":
-                if piece.colour == "White":
-                    Image = pygame.image.load("sprites\\WhitePawn.png")
-                else:
-                    Image = pygame.image.load('sprites\\BlackPawn.png')
-            elif piece.type == "Rook":
-                if piece.colour == "White":
-                    Image = pygame.image.load('sprites\\WhiteRook.png')
-                else:
-                    Image = pygame.image.load('sprites\\BlackRook.png')
-            elif piece.type == "Horse":
-                if piece.colour == "White":
-                    Image = pygame.image.load('sprites\\WhiteHorse.png')
-                else:
-                    Image = pygame.image.load('sprites\\BlackHorse.png')
-            elif piece.type == "Bishop":
-                if piece.colour == "White":
-                    Image = pygame.image.load('sprites\\WhiteBishop.png')
-                else:
-                    Image = pygame.image.load('sprites\\BlackBishop.png')
-            elif piece.type == "Queen":
-                if piece.colour == "White":
-                    Image = pygame.image.load('sprites\\WhiteQueen.png')
-                else:
-                    Image = pygame.image.load('sprites\\BlackQueen.png')
-            elif piece.type == "King":
-                if piece.colour == "White":
-                    Image = pygame.image.load('sprites\\WhiteKing.png')
-                else:
-                    Image = pygame.image.load('sprites\\BlackKing.png')        
-            Window.blit(Image,piece.Position)
-        pygame.display.update()
+    def MovePiece(self,startLoc,endLoc): ### this removes a piece from the board
+        #print(self.Pieces)
+        chosenPiece = None ### assume the chosen square is empty
+        deadPiece = None ### assume the destination square is empty
+        for piece in self.Pieces: ### search all pieces
+            if (piece.x,piece.y) == startLoc: ### if there is a piece at the start point, it will be moved
+                chosenPiece = piece
+            if (piece.x,piece.y) == endLoc: ### if there is a piece at the end point, it will be removed
+                deadPiece = piece
+        if deadPiece != None: ### remove the deadpiece if there is one
+            self.Pieces.remove(deadPiece)
+        if chosenPiece != None:
+            chosenPiece.SetLocation(endLoc)
+        print(chosenPiece.GetLocation())
+        
+        #print(self.Pieces)
 
 
 
 
 
 
+
+    def SelectGameMode(self):
+        ### to be removed in favour of GUI selection
+        GameMode = input("Please enter the number of players : > ") ### Main menu to ask for the gamemode
+        while GameMode != "2" and GameMode != "1" and GameMode != "0":
+            print("Please input a valid number, being 0, 1 or 2")
+            GameMode = input("Please enter the number of players : > ")
+        print(GameMode)
+        Cyan = (0,255, 255) ### colour for available moves
+        Selectedpiece = False ### no piece is selected
 
 
     def DisplayPieces(self):
@@ -213,35 +234,7 @@ class Chess():
                 return piece
 
 
-    def __str__(self): ###create a string representation of the game
-        BoardFormat = "| {:^2}{:^2}"
-        BoardAsString = "------------------------------------------------" + "\n"
-        for j in range(8):
-            for i in range(8):
-                CurrentPiece = self.Board[j][i]
-                if CurrentPiece != "":
-                    BoardAsString += BoardFormat.format(CurrentPiece.GetColour()[0], CurrentPiece.GetPieceType()[0])
-                else:
-                    BoardAsString += BoardFormat.format("","")
-                if j == 0 and i == 7:
-                    BoardAsString += "|" + "--8--" + "\n"
-                elif j == 1 and i == 7:
-                    BoardAsString += "|" + "--7--" + "\n"
-                elif j == 2 and i == 7:
-                    BoardAsString += "|" + "--6--" + "\n"
-                elif j == 3 and i == 7:
-                    BoardAsString += "|" + "--5--" + "\n"
-                elif j == 4 and i == 7:
-                    BoardAsString += "|" + "--4--" + "\n"
-                elif j == 5 and i == 7:
-                    BoardAsString += "|" + "--3--" + "\n"
-                elif j == 6 and i == 7:
-                    BoardAsString += "|" + "--2--" + "\n"
-                elif j == 7 and i == 7:
-                    BoardAsString += "|" + "--1--" + "\n"
-            BoardAsString += "------------------------------------------------" + "\n"
-        BoardAsString += "---A-----B-----C-----D-----E-----F-----G-----H---" + "\n"
-        return BoardAsString
+    
             
 
 class Piece(): ### parent class for all pieces
@@ -251,6 +244,12 @@ class Piece(): ### parent class for all pieces
         self.type = type
         self.colour = colour
         self.moveCount = 0 ### may need to change to moveCount, or remove all
+        ### multiply x and y locations by 80 to get the location on the display
+        self.Position = (self.x * 80, self.y * 80) ### return a tuple of location
+
+    def PossibleMoves(self,board):
+        ### method to be overided, board is the list Chess.Pieces,
+        pass
 
     ### getters
     def GetLocation(self): 
@@ -262,58 +261,72 @@ class Piece(): ### parent class for all pieces
     def GetPieceType(self):
         return self.type
 
+    ### setters
+    def SetLocation(self,NewLoc):
+        self.x = NewLoc[0] ### update the new x and ys
+        self.y = NewLoc[1]
+        self.UpdatePosition() ### update the position of the GUI
+
+    def UpdatePosition(self):
+        self.Position = (self.x * 80, self.y * 80) ### return a tuple of location
+
 class Pawn(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
         self.Score = 1
-        YPosition = (self.y * 80) ### multiply x and y locations by 80 to get the location on the display
-        XPosition = (self.x * 80)
-        self.Position = (XPosition, YPosition) ### return a tuple of location
 
-    def Move(self,newLocation):
-        self.x = newLocation[0]
-        self.y = newLocation[1]
+    def PossibleMoves(self,board):
+        # if nothing in front, move 1 space forward
+        # if first move, allow option for 2 space forward
+        # if opponent 1 space diagonal
+        # so long as in bounds
+
+        pass
+        
+    
 
     
 class Rook(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
         self.Score = 5
-        YPosition = (self.y * 80) ### multiply x and y locations by 80 to get the location on the display
-        XPosition = (self.x * 80)
-        self.Position = (XPosition, YPosition) ### return a tuple of location
+    
+    def PossibleMoves(self,board):
+        # up to 8 spaces horizontal or vertical
+        # if not moved, and empty spaces between it and King
+        # who has also not moved, castle is allowed
+        # so long as in bounds
+
+        pass
 
 class Horse(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
         self.Score = 3
-        YPosition = (self.y * 80) ### multiply x and y locations by 80 to get the location on the display
-        XPosition = (self.x * 80)
-        self.Position = (XPosition, YPosition) ### return a tuple of location
+
+    def PossibleMoves(self,board):
+        # either 2 vertical and 1 horizontal or 2 horizontal 1 vertical
+        # so long as in bounds
+        pass
+        
     
 class Bishop(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
         self.Score = 3
-        YPosition = (self.y * 80) ### multiply x and y locations by 80 to get the location on the display
-        XPosition = (self.x * 80)
-        self.Position = (XPosition, YPosition) ### return a tuple of location
+        
     
 class Queen(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
         self.Score = 9
-        YPosition = (self.y * 80) ### multiply x and y locations by 80 to get the location on the display
-        XPosition = (self.x * 80)
-        self.Position = (XPosition, YPosition) ### return a tuple of location
+        
     
 class King(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
         self.Score = 100
-        YPosition = (self.y * 80) ### multiply x and y locations by 80 to get the location on the display
-        XPosition = (self.x * 80)
-        self.Position = (XPosition, YPosition) ### return a tuple of location
+        
     
     def isCastleValid():
         pass

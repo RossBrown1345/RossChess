@@ -23,3 +23,10 @@ internal ---> external
 [2]      --->       [C]
 [1]      --->       [B]
 [0]      --->       [A]
+
+
+
+i dont like the pieces having move methods, have the methods take the board state and an input move, and return if
+possible, then have game manager move the piece. move method in pawn is fine for now
+
+whenever a piece is moved, you need to update its position
