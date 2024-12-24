@@ -1,6 +1,6 @@
 ### TO DO:
 
-GUI first
+make main menu for pvp or pvJoshua
 
 gameplay loop
 

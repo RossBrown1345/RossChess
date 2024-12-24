@@ -1,10 +1,9 @@
 ### RossChess-
 
+# pip install pygame
+
+
 # Run python RossChess.py
-
-
-
-
 
 # continuation of RossChess!
 # 

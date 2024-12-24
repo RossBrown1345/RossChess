@@ -47,6 +47,21 @@ import pygame
 
 class Chess():
     def __init__(self): ### game manager init
+        #self.OpeningSequence()
+        self.Board = [["" for x in range(8)] for y in range(8)] ### create 8*8 2D list to act as the board
+        self.Pieces = [] ### this list contains all pieces
+        self.CreatePieces() ### create all pieces and add to Pieces
+        self.PopulateBoard() ### populate board
+        self.DisplayBoard() ### display board
+        self.GUIWindow()
+
+        
+        '''testPiece = self.getPieceFromTuple((4,6))
+        testPiece.move((4,4)) # test move
+        self.populateBoard()
+        self.displayBoard()'''
+
+    def OpeningSequence(self):
         print("\n")
         time.sleep(1)
         print("Hello Professor")
@@ -66,18 +81,6 @@ class Chess():
         print("    \/              \/      \/         \/      \/      \/      \/      \/      O")
         print("\n")
         time.sleep(1)
-        self.Board = [["" for x in range(8)] for y in range(8)] ### create 8*8 2D list to act as the board
-        self.Pieces = [] ### this list contains all pieces
-        self.CreatePieces() ### create all pieces and add to Pieces
-        self.PopulateBoard() ### populate board
-        self.DisplayBoard() ### display board
-        self.GUIWindow()
-
-        
-        '''testPiece = self.getPieceFromTuple((4,6))
-        testPiece.move((4,4)) # test move
-        self.populateBoard()
-        self.displayBoard()'''
 
     def GUIWindow(self):
         pygame.init() ### initialise pygame
@@ -85,12 +88,21 @@ class Chess():
         WindowSize = 640 ### set the window size
         run = True
         Window = pygame.display.set_mode((WindowSize, WindowSize)) ### create window
-        self.GUIPopulateBoard(Window)
+        Window.fill((255,255,255))
         
+        self.GUIUpdateBoard(Window)
+        
+        GameMode = input("Please enter the number of players : > ") ### Main menu to ask for the gamemode
+        while GameMode != "2" and GameMode != "1" and GameMode != "0":
+            print("Please input a valid number, being 0, 1 or 2")
+            GameMode = input("Please enter the number of players : > ")
+
+        print(GameMode)
 
         while run:
             Event = pygame.event.poll()
             if Event.type == pygame.QUIT:
+                pygame.quit()
                 break
 
 
@@ -99,7 +111,7 @@ class Chess():
         Cyan = (0,255, 255) ### colour for available moves
         Selectedpiece = False ### no piece is selected
 
-    def GUIPopulateBoard(self, Window):
+    def GUIUpdateBoard(self, Window):
         print("Loading..")
         DarkGrey = (80, 80, 80)
         DarkWhite = (200, 200, 200)
@@ -119,35 +131,36 @@ class Chess():
         for piece in self.Pieces:
             if piece.type == "Pawn":
                 if piece.colour == "White":
-                    Image = pygame.image.load('sprites\WhitePawn.png')
+                    Image = pygame.image.load("sprites\\WhitePawn.png")
                 else:
-                    Image = pygame.image.load('sprites\BlackPawn.png')
+                    Image = pygame.image.load('sprites\\BlackPawn.png')
             elif piece.type == "Rook":
                 if piece.colour == "White":
-                    Image = pygame.image.load('sprites\WhiteRook.png')
+                    Image = pygame.image.load('sprites\\WhiteRook.png')
                 else:
-                    Image = pygame.image.load('sprites\BlackRook.png')
+                    Image = pygame.image.load('sprites\\BlackRook.png')
             elif piece.type == "Horse":
                 if piece.colour == "White":
-                    Image = pygame.image.load('sprites\WhiteHorse.png')
+                    Image = pygame.image.load('sprites\\WhiteHorse.png')
                 else:
-                    Image = pygame.image.load('sprites\BlackHorse.png')
+                    Image = pygame.image.load('sprites\\BlackHorse.png')
             elif piece.type == "Bishop":
                 if piece.colour == "White":
-                    Image = pygame.image.load('sprites\WhiteBishop.png')
+                    Image = pygame.image.load('sprites\\WhiteBishop.png')
                 else:
-                    Image = pygame.image.load('sprites\BlackBishop.png')
+                    Image = pygame.image.load('sprites\\BlackBishop.png')
             elif piece.type == "Queen":
                 if piece.colour == "White":
-                    Image = pygame.image.load('sprites\WhiteQueen.png')
+                    Image = pygame.image.load('sprites\\WhiteQueen.png')
                 else:
-                    Image = pygame.image.load('sprites\BlackQueen.png')
+                    Image = pygame.image.load('sprites\\BlackQueen.png')
             elif piece.type == "King":
                 if piece.colour == "White":
-                    Image = pygame.image.load('sprites\WhiteKing.png')
+                    Image = pygame.image.load('sprites\\WhiteKing.png')
                 else:
-                    Image = pygame.image.load('sprites\BlackKing.png')        
+                    Image = pygame.image.load('sprites\\BlackKing.png')        
             Window.blit(Image,piece.Position)
+        pygame.display.update()
 
 
 
@@ -169,8 +182,8 @@ class Chess():
             self.Pieces.append(Pawn(i,6,"Pawn","White",0))
 
         self.Pieces.append(Rook(0,0,"Rook","Black",0)) ### populate all 4 Rooks
-        self.Pieces.append(Rook(0,7,"Rook","Black",0))
-        self.Pieces.append(Rook(7,0,"Rook","White",0))
+        self.Pieces.append(Rook(7,0,"Rook","Black",0))
+        self.Pieces.append(Rook(0,7,"Rook","White",0))
         self.Pieces.append(Rook(7,7,"Rook","White",0))
 
         self.Pieces.append(Rook(1,0,"Horse","Black",0)) ### populate all 4 Horses
