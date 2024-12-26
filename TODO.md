@@ -7,14 +7,12 @@ then hang fire on GUI, work on possible moves for each piece
 possible moves for
 
 ~~pawns~~
-horses
+~~horses~~
 ~~bishops~~
 ~~rooks~~
 ~~queens~~
 ~~kings~~
-castling
-promotion
-en passant
+
 
 
 
@@ -26,6 +24,9 @@ en passant
 
 return to GUI to allow for selection of pieces and highlighting possible moves
 
+castling
+promotion
+en passant
 
 
 
