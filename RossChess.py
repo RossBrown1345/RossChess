@@ -124,21 +124,32 @@ class Chess():
                 break
             elif Event.type == pygame.MOUSEBUTTONDOWN:
                 print(pygame.mouse.get_pos())
-                #self.MovePiece((3,3),(1,1))
+                (mouseX,mouseY) = pygame.mouse.get_pos() ### get the position of the mouse
+                mouseLoc = (int(mouseX / 80),int( mouseY / 80)) ### convert to the board location
+                #print(mouseLoc)
+                chosenPiece = None ### assume space is empty
+                for piece in self.Pieces:
+                    if piece.GetLocation() == mouseLoc:
+                        chosenPiece = piece ### space is not empty, assign piece
+                if chosenPiece != None: ### do not reference chosnnPiece outside of this
+                    chosenPieceMoves = chosenPiece.PossibleMoves(self.Pieces)
+                    print(chosenPieceMoves)
+                    
+
 
                 self.GUIUpdateBoard()
-                self.PopulateBoard()
-                self.DisplayBoard()
+                # self.PopulateBoard()
+                # self.DisplayBoard()
 
                 # self.MakeMove()
                 
     
     def GUIUpdateBoard(self):
-        print("Loading..")
+        #print("Loading..")
         DarkGrey = (80, 80, 80)
         DarkWhite = (200, 200, 200)
         self.Window.fill(DarkWhite)
-        print("Loading...")
+        #print("Loading...")
         for i in range(0,640,160):
             for j in range(0,640,160):  
                 self.Window.fill(DarkWhite,(i, j, 80, 80))
@@ -153,7 +164,7 @@ class Chess():
             Image = pygame.image.load("sprites\\"+spriteString+".png")
             self.Window.blit(Image,piece.Position)
         pygame.display.update()
-        print("Done!")
+        #print("Done!")
 
     # define a method that will take a peice, move it to the desired location, and remove any opponent in that
     # location from self.pieces
