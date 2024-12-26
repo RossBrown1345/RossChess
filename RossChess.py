@@ -51,7 +51,8 @@ class Chess():
         #self.OpeningSequence()
         self.Board = [["" for x in range(8)] for y in range(8)] ### create 8*8 2D list to act as the board
         self.Pieces = [] ### this list contains all pieces
-        self.CreatePieces() ### create all pieces and add to Pieces
+        #self.CreatePieces() ### create all pieces and add to Pieces
+        self.PMCP() ### this is for custom testing of possible moves
         self.PopulateBoard() ### populate board
         self.DisplayBoard() ### display board
         self.StartGUIWindow() ### start GUI window
@@ -123,7 +124,7 @@ class Chess():
                 break
             elif Event.type == pygame.MOUSEBUTTONDOWN:
 
-                self.MovePiece((6,6),(1,1))
+                #self.MovePiece((3,3),(1,1))
 
                 self.GUIUpdateBoard()
                 self.PopulateBoard()
@@ -169,10 +170,11 @@ class Chess():
         if deadPiece != None: ### remove the deadpiece if there is one
             self.Pieces.remove(deadPiece)
         if chosenPiece != None:
+            print(chosenPiece.PossibleMoves(self.Pieces))
             chosenPiece.IncrementMoveCount()
             chosenPiece.SetLocation(endLoc)
             chosenPiece.PossibleMoves(self.Pieces)
-            print(chosenPiece.PossibleMoves(self.Pieces))
+            
         #print(chosenPiece.GetLocation())
         
         #print(self.Pieces)
@@ -194,6 +196,14 @@ class Chess():
 
     def DisplayBoard(self): ### display string representation of board
         print(self.__str__())
+
+    def PMCP(self):
+        self.Pieces.append(Pieces.Rook(3,3,"Rook","White",0))
+        self.Pieces.append(Pieces.Rook(3,1,"Rook","White",0))
+        self.Pieces.append(Pieces.Rook(3,5,"Rook","White",0))
+
+        piece = self.Pieces[0]
+        print("s",piece.PossibleMoves(self.Pieces))
 
     def CreatePieces(self):
         for i in range(0,8):### populate Pawns

@@ -107,13 +107,74 @@ class Rook(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
         self.Score = 5
-    
+
+    def CheckDirection(self,checkLoc,board):
+        emptySpace = True ### assume the checked space is empty
+        for piece in board: ### iterate through pieces
+                if checkLoc == piece.GetLocation(): ### contact with peice
+                    emptySpace = False ### the space is not empty, stop checking this direction after this piece
+                    if piece.GetColour() != self.GetColour(): ###pieces are not on same team
+                        return checkLoc,emptySpace
+                        #print("enemy yay")
+                    else:
+                        return (-1,-1), emptySpace
+
+             ### empty space 
+        if emptySpace:
+            return checkLoc,emptySpace
+
     def PossibleMoves(self,board):
         # up to 8 spaces horizontal or vertical
         # if not moved, and empty spaces between it and King
         # who has also not moved, castle is allowed
         # so long as in bounds
-        pass
+
+        # get location
+        # have a loop for both up, down, left and right, starting from location
+        # if square is empty, add to list, if enemy, add to list and break
+        # if teammate, break
+
+
+        (startX,startY) = self.GetLocation()
+        possibleMoves = []
+        
+        ### vertical first
+        for y in range(startY -1,-1, -1): ### this loop is for up
+           checkLoc = (startX,y)
+           move , emptySpace = self.CheckDirection(checkLoc, board)
+           if move != (-1,-1): ### if the move isnt a teammate
+            possibleMoves.append(move)
+           if not emptySpace:
+              break
+
+        emptySpace = True ### reset the empty space value to true
+        for y in range(startY +1,8): ### this loop is for up
+           checkLoc = (startX,y)
+           move , emptySpace = self.CheckDirection(checkLoc, board)
+           if move != (-1,-1): ### if the move isnt a teammate
+            possibleMoves.append(move)
+           if not emptySpace:
+              break
+
+        emptySpace = True
+        for x in range(startX -1,-1, -1): ### this loop is for left
+            checkLoc = (x,startY)
+            move , emptySpace = self.CheckDirection(checkLoc, board)
+            if move != (-1,-1): ### if the move isnt a teammate
+                possibleMoves.append(move)
+            if not emptySpace:
+                break
+
+        emptySpace = True
+        for x in range(startX + 1,8): ### this loop is for right
+            checkLoc = (x,startY)
+            move , emptySpace = self.CheckDirection(checkLoc, board)
+            if move != (-1,-1): ### if the move isnt a teammate
+                possibleMoves.append(move)
+            if not emptySpace:
+                break
+
+        return possibleMoves
 
 class Horse(Piece):
     def __init__(self,x,y,type,colour,moveCount):

@@ -6,10 +6,10 @@ then hang fire on GUI, work on possible moves for each piece
 
 possible moves for
 
-~~ pawns ~~
+~~pawns~~
 horses
 bishops
-rooks
+~~rooks~~
 queens
 kings
 castling
@@ -43,6 +43,7 @@ castling
 
 en passant
 
+add extra pygame panel to show game clock, and score difference, aswell as whos turn it is
 
 
 
