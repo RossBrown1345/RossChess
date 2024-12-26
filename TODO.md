@@ -8,7 +8,7 @@ possible moves for
 
 ~~pawns~~
 horses
-bishops
+~~bishops~~
 ~~rooks~~
 queens
 kings

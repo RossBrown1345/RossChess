@@ -81,7 +81,7 @@ class Pawn(Piece):
             return possibleMoves
         
         else:
-            oneSpace = (startX, startY +1) ## the four potential moves of a pawn, enpassant to be added later
+            oneSpace = (startX, startY + 1) ## the four potential moves of a pawn, enpassant to be added later
             twoSpace = (startX, startY + 2)
             leftCap = (startX - 1 , startY + 1)
             rightCap = (startX + 1, startY + 1)
@@ -133,8 +133,6 @@ class Rook(Piece):
         # have a loop for both up, down, left and right, starting from location
         # if square is empty, add to list, if enemy, add to list and break
         # if teammate, break
-
-
         (startX,startY) = self.GetLocation()
         possibleMoves = []
         
@@ -190,13 +188,90 @@ class Horse(Piece):
 class Bishop(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 3
+        self.Score = 3  
+    
+    def CheckDirection(self,checkLoc,board):
+        emptySpace = True ### assume the checked space is empty
+        for piece in board: ### iterate through pieces
+                if checkLoc == piece.GetLocation(): ### contact with peice
+                    emptySpace = False ### the space is not empty, stop checking this direction after this piece
+                    if piece.GetColour() != self.GetColour(): ###pieces are not on same team
+                        return checkLoc,emptySpace
+                        #print("enemy yay")
+                    else:
+                        return (-1,-1), emptySpace
+
+             ### empty space 
+        if emptySpace:
+            return checkLoc,emptySpace
+        pass
 
     def PossibleMoves(self,board):
     # up to 8 spaces diagonally
     # so long as in bounds
-        pass
 
+
+        (startX,startY) = self.GetLocation()
+        possibleMoves = []
+
+
+        ### this is north west
+        emptySpace = True
+        (checkX,checkY) = (startX -1,startY-1) ### move one space NW
+        checkLoc = (checkX,checkY)
+        while checkX >= 0 and checkX <= 7 and checkY >= 0 and checkY <= 7: ### while remaining in bounds
+            move, emptySpace = self.CheckDirection(checkLoc, board) ### check the move, if it is empty/ has an opp or teammate
+            if move != (-1,-1): ### if piece in checkLoc isnt teammate
+                possibleMoves.append(move)
+            if not emptySpace: ### a piece has been hit, break this direction
+                break
+            (checkX,checkY) = (checkX - 1,checkY - 1) ### increment direction
+            checkLoc = (checkX,checkY)
+
+
+        ### this is north east
+        emptySpace = True
+        (checkX,checkY) = (startX +1,startY-1) ### move one space NE
+        checkLoc = (checkX,checkY)
+        while checkX >= 0 and checkX <= 7 and checkY >= 0 and checkY <= 7: ### while remaining in bounds
+            move, emptySpace = self.CheckDirection(checkLoc, board) ### check the move, if it is empty/ has an opp or teammate
+            if move != (-1,-1): ### if piece in checkLoc isnt teammate
+                possibleMoves.append(move)
+            if not emptySpace: ### a piece has been hit, break this direction
+                break
+            (checkX,checkY) = (checkX + 1,checkY - 1) ### increment direction
+            checkLoc = (checkX,checkY)
+
+
+        ### this is south east
+        emptySpace = True
+        (checkX,checkY) = (startX +1,startY+1) ### move one space SE
+        checkLoc = (checkX,checkY)
+        while checkX >= 0 and checkX <= 7 and checkY >= 0 and checkY <= 7: ### while remaining in bounds
+            move, emptySpace = self.CheckDirection(checkLoc, board) ### check the move, if it is empty/ has an opp or teammate
+            if move != (-1,-1): ### if piece in checkLoc isnt teammate
+                possibleMoves.append(move)
+            if not emptySpace: ### a piece has been hit, break this direction
+                break
+            (checkX,checkY) = (checkX + 1,checkY + 1)### increment direction
+            checkLoc = (checkX,checkY)
+        
+
+        ### this is south west
+        emptySpace = True
+        (checkX,checkY) = (startX -1,startY+1) ### move one space SW
+        checkLoc = (checkX,checkY)
+        while checkX >= 0 and checkX <= 7 and checkY >= 0 and checkY <= 7: ### while remaining in bounds
+            move, emptySpace = self.CheckDirection(checkLoc, board) ### check the move, if it is empty/ has an opp or teammate
+            if move != (-1,-1): ### if piece in checkLoc isnt teammate
+                possibleMoves.append(move)
+            if not emptySpace: ### a piece has been hit, break this direction
+                break
+            (checkX,checkY) = (checkX - 1,checkY + 1)### increment direction
+            checkLoc = (checkX,checkY)
+        
+
+        return possibleMoves
     
 class Queen(Piece):
     def __init__(self,x,y,type,colour,moveCount):
