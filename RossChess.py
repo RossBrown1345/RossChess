@@ -180,7 +180,7 @@ class Chess():
         if self.Turn == "White":
             self.Turn = "Black"
         else:
-            self.Turn = "Black"
+            self.Turn = "White"
 
 
     def StartGUIWindow(self):

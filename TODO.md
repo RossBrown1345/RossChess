@@ -4,6 +4,13 @@
 
 ~~then hang fire on GUI, work on possible moves for each piece~~
 
+# problems:
+
+captures kill both pieces
+
+pieces can move anywhere
+
+
 # possible moves for
 
 ~~pawns~~
