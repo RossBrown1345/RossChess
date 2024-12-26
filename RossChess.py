@@ -198,9 +198,11 @@ class Chess():
         print(self.__str__())
 
     def PMCP(self):
-        self.Pieces.append(Pieces.Bishop(3,3,"Bishop","Black",0))
+        self.Pieces.append(Pieces.King(3,3,"King","Black",0))
         self.Pieces.append(Pieces.Rook(6,6,"Rook","Black",0))
         self.Pieces.append(Pieces.Rook(2,2,"Rook","White",0))
+        self.Pieces.append(Pieces.Rook(3,4,"Rook","Black",0))
+        self.Pieces.append(Pieces.Rook(2,3,"Rook","White",0))
 
         piece = self.Pieces[0]
         print("s",piece.PossibleMoves(self.Pieces))

@@ -10,8 +10,8 @@ possible moves for
 horses
 ~~bishops~~
 ~~rooks~~
-queens
-kings
+~~queens~~
+~~kings~~
 castling
 promotion
 en passant
