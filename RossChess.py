@@ -52,8 +52,8 @@ class Chess():
         self.Board = [["" for x in range(8)] for y in range(8)] ### create 8*8 2D list to act as the board
         self.Pieces = [] ### this list contains all pieces
         self.Turn = "White" ### White will play first
-        #self.CreatePieces() ### create all pieces and add to Pieces
-        self.PMCP() ### this is for custom testing of possible moves
+        self.CreatePieces() ### create all pieces and add to Pieces
+        #self.PMCP() ### this is for custom testing of possible moves
         self.PopulateBoard() ### populate board
         self.DisplayBoard() ### display board
         self.StartGUIWindow() ### start GUI window
@@ -144,7 +144,7 @@ class Chess():
                     # selecting different piece
                     # capture move
                     # non capture move
-                    m = True
+                    nonCaptureMove = True ## the same piece is being selectied
                     for piece in self.Pieces:
                         if piece.GetLocation() == mouseLoc and piece.GetColour() == self.Turn: ### a different piece was chosen to move
                             chosenPiece = piece ### space is not empty, assign piece
@@ -160,10 +160,12 @@ class Chess():
                             self.isPieceChosen = False
                             m = False
                             break
-                    if m:
-                        self.MovePiece(chosenPiece.GetLocation(), mouseLoc) #### problem is here, chosenPiece/piece.GetLocation() isnt getting the original piece
-
-                    self.GUIUpdateBoard(chosenPiece)
+                    if nonCaptureMove: ### non capture move is chosen
+                        self.MovePiece(chosenPiece.GetLocation(), mouseLoc)
+                    ### at this point any move that would be made, has been made
+                    chosenPiece = None
+                    self.isPieceChosen = False
+                    self.GUIUpdateBoard(None)
 
                     print("second click")
 
@@ -174,6 +176,11 @@ class Chess():
 
                 # self.MakeMove()
 
+    def ChangeTurn(self):
+        if self.Turn == "White":
+            self.Turn = "Black"
+        else:
+            self.Turn = "Black"
 
 
     def StartGUIWindow(self):
@@ -238,6 +245,7 @@ class Chess():
         chosenPiece.IncrementMoveCount()
         chosenPiece.SetLocation(endLoc)
         
+        self.ChangeTurn()
         self.GUIUpdateBoard(None)
         #chosenPiece.PossibleMoves(self.Pieces)
             
@@ -283,20 +291,20 @@ class Chess():
         self.Pieces.append(Pieces.Rook(0,7,"Rook","White",0))
         self.Pieces.append(Pieces.Rook(7,7,"Rook","White",0))
 
-        self.Pieces.append(Pieces.Rook(1,0,"Horse","Black",0)) ### populate all 4 Horses
-        self.Pieces.append(Pieces.Rook(6,0,"Horse","Black",0))
-        self.Pieces.append(Pieces.Rook(1,7,"Horse","White",0))
-        self.Pieces.append(Pieces.Rook(6,7,"Horse","White",0))
+        self.Pieces.append(Pieces.Horse(1,0,"Horse","Black",0)) ### populate all 4 Horses
+        self.Pieces.append(Pieces.Horse(6,0,"Horse","Black",0))
+        self.Pieces.append(Pieces.Horse(1,7,"Horse","White",0))
+        self.Pieces.append(Pieces.Horse(6,7,"Horse","White",0))
 
-        self.Pieces.append(Pieces.Rook(2,0,"Bishop","Black",0)) ### populate all 4 Bishops
-        self.Pieces.append(Pieces.Rook(5,0,"Bishop","Black",0))
-        self.Pieces.append(Pieces.Rook(2,7,"Bishop","White",0))
-        self.Pieces.append(Pieces.Rook(5,7,"Bishop","White",0))
+        self.Pieces.append(Pieces.Bishop(2,0,"Bishop","Black",0)) ### populate all 4 Bishops
+        self.Pieces.append(Pieces.Bishop(5,0,"Bishop","Black",0))
+        self.Pieces.append(Pieces.Bishop(2,7,"Bishop","White",0))
+        self.Pieces.append(Pieces.Bishop(5,7,"Bishop","White",0))
 
-        self.Pieces.append(Pieces.Rook(4,0,"King","Black",0)) ### populate all 4 Royals
-        self.Pieces.append(Pieces.Rook(3,0,"Queen","Black",0))
-        self.Pieces.append(Pieces.Rook(4,7,"King","White",0))
-        self.Pieces.append(Pieces.Rook(3,7,"Queen","White",0))
+        self.Pieces.append(Pieces.King(4,0,"King","Black",0)) ### populate all 4 Royals
+        self.Pieces.append(Pieces.Queen(3,0,"Queen","Black",0))
+        self.Pieces.append(Pieces.King(4,7,"King","White",0))
+        self.Pieces.append(Pieces.Queen(3,7,"Queen","White",0))
 
     def PopulateBoard(self): ### fill the board with the pieces
         self.Board = [["" for x in range(8)] for y in range(8)] ### empty board
