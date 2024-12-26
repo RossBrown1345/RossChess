@@ -44,6 +44,7 @@ backend will use 0 - 7, for x and y, front end will include A to H and 1 to 8
 
 import time
 import pygame
+import Pieces
 
 class Chess():
     def __init__(self): ### game manager init
@@ -176,12 +177,6 @@ class Chess():
         
         #print(self.Pieces)
 
-
-
-
-
-
-
     def SelectGameMode(self):
         ### to be removed in favour of GUI selection
         GameMode = input("Please enter the number of players : > ") ### Main menu to ask for the gamemode
@@ -202,28 +197,28 @@ class Chess():
 
     def CreatePieces(self):
         for i in range(0,8):### populate Pawns
-            self.Pieces.append(Pawn(i,1,"Pawn","Black",0))
-            self.Pieces.append(Pawn(i,6,"Pawn","White",0))
+            self.Pieces.append(Pieces.Pawn(i,1,"Pawn","Black",0))
+            self.Pieces.append(Pieces.Pawn(i,6,"Pawn","White",0))
 
-        self.Pieces.append(Rook(0,0,"Rook","Black",0)) ### populate all 4 Rooks
-        self.Pieces.append(Rook(7,0,"Rook","Black",0))
-        self.Pieces.append(Rook(0,7,"Rook","White",0))
-        self.Pieces.append(Rook(7,7,"Rook","White",0))
+        self.Pieces.append(Pieces.Rook(0,0,"Rook","Black",0)) ### populate all 4 Rooks
+        self.Pieces.append(Pieces.Rook(7,0,"Rook","Black",0))
+        self.Pieces.append(Pieces.Rook(0,7,"Rook","White",0))
+        self.Pieces.append(Pieces.Rook(7,7,"Rook","White",0))
 
-        self.Pieces.append(Rook(1,0,"Horse","Black",0)) ### populate all 4 Horses
-        self.Pieces.append(Rook(6,0,"Horse","Black",0))
-        self.Pieces.append(Rook(1,7,"Horse","White",0))
-        self.Pieces.append(Rook(6,7,"Horse","White",0))
+        self.Pieces.append(Pieces.Rook(1,0,"Horse","Black",0)) ### populate all 4 Horses
+        self.Pieces.append(Pieces.Rook(6,0,"Horse","Black",0))
+        self.Pieces.append(Pieces.Rook(1,7,"Horse","White",0))
+        self.Pieces.append(Pieces.Rook(6,7,"Horse","White",0))
 
-        self.Pieces.append(Rook(2,0,"Bishop","Black",0)) ### populate all 4 Bishops
-        self.Pieces.append(Rook(5,0,"Bishop","Black",0))
-        self.Pieces.append(Rook(2,7,"Bishop","White",0))
-        self.Pieces.append(Rook(5,7,"Bishop","White",0))
+        self.Pieces.append(Pieces.Rook(2,0,"Bishop","Black",0)) ### populate all 4 Bishops
+        self.Pieces.append(Pieces.Rook(5,0,"Bishop","Black",0))
+        self.Pieces.append(Pieces.Rook(2,7,"Bishop","White",0))
+        self.Pieces.append(Pieces.Rook(5,7,"Bishop","White",0))
 
-        self.Pieces.append(Rook(4,0,"King","Black",0)) ### populate all 4 Royals
-        self.Pieces.append(Rook(3,0,"Queen","Black",0))
-        self.Pieces.append(Rook(4,7,"King","White",0))
-        self.Pieces.append(Rook(3,7,"Queen","White",0))
+        self.Pieces.append(Pieces.Rook(4,0,"King","Black",0)) ### populate all 4 Royals
+        self.Pieces.append(Pieces.Rook(3,0,"Queen","Black",0))
+        self.Pieces.append(Pieces.Rook(4,7,"King","White",0))
+        self.Pieces.append(Pieces.Rook(3,7,"Queen","White",0))
 
     def PopulateBoard(self): ### fill the board with the pieces
         self.Board = [["" for x in range(8)] for y in range(8)] ### empty board
@@ -238,168 +233,6 @@ class Chess():
 
 
     
-            
-
-class Piece(): ### parent class for all pieces
-    def __init__(self,x,y,type,colour,moveCount):
-        self.x = x
-        self.y = y
-        self.type = type
-        self.colour = colour
-        self.moveCount = 0 ### may need to change to moveCount, or remove all
-        ### multiply x and y locations by 80 to get the location on the display
-        self.Position = (self.x * 80, self.y * 80) ### return a tuple of location
-
-    def PossibleMoves(self,board):
-        ### method to be overided, board is the list Chess.Pieces,
-        pass
-    
-    def IncrementMoveCount(self):
-        self.moveCount+=1
-
-    ### getters
-    def GetLocation(self): 
-        return (self.x, self.y)
-    def GetColour(self):
-        return self.colour
-    def GetMoveCount(self):
-        return self.moveCount
-    def GetPieceType(self):
-        return self.type
-
-    ### setters
-    def SetLocation(self,NewLoc):
-        self.x = NewLoc[0] ### update the new x and ys
-        self.y = NewLoc[1]
-        self.UpdatePosition() ### update the position of the GUI
-
-    def UpdatePosition(self):
-        self.Position = (self.x * 80, self.y * 80) ### return a tuple of location
-
-class Pawn(Piece):
-    def __init__(self,x,y,type,colour,moveCount):
-        super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 1
-
-    def PossibleMoves(self,board):
-        # if nothing in front, move 1 space forward
-        # if first move, allow option for 2 space forward
-        # if opponent 1 space diagonal
-        # so long as in bounds
-        ### the code for this can be slightly more exact as it is less mathematical
-
-        (startX,startY) = self.GetLocation()
-        possibleMoves = []
-        oneSpacePossible = True
-        if self.GetMoveCount() > 0:
-            twoSpacePossible  = False
-        else:
-            twoSpacePossible = True
-
-        if self.GetColour() == "White": ##get white moves
-            oneSpace = (startX, startY -1) ## the four potential moves of a pawn, enpassant to be added later
-            twoSpace = (startX, startY - 2)
-            leftCap = (startX - 1 , startY - 1)
-            rightCap = (startX + 1, startY - 1)
-            for piece in board: ### search all the opp pieces
-                checkLoc = piece.GetLocation()
-                if checkLoc == twoSpace:
-                    twoSpacePossible = False
-                elif checkLoc == oneSpace:
-                    oneSpacePossible = False
-                if piece.GetColour() == "Black": ### check the black pieces and append possible captures
-                    if checkLoc == leftCap:
-                        possibleMoves.append(leftCap)
-                    elif checkLoc == rightCap:
-                        possibleMoves.append(rightCap)
-            if oneSpacePossible: ### append possible moves
-                possibleMoves.append(oneSpace)
-            if twoSpacePossible:
-                possibleMoves.append(twoSpace)
-            return possibleMoves
-        
-        else:
-            oneSpace = (startX, startY +1) ## the four potential moves of a pawn, enpassant to be added later
-            twoSpace = (startX, startY + 2)
-            leftCap = (startX - 1 , startY + 1)
-            rightCap = (startX + 1, startY + 1)
-            for piece in board: ### search all the opp pieces
-                checkLoc = piece.GetLocation()
-                if checkLoc == twoSpace:
-                    twoSpacePossible = False
-                elif checkLoc == oneSpace:
-                    oneSpacePossible = False
-                if piece.GetColour() == "White": ### check the white pieces and append possible captures
-                    if checkLoc == leftCap:
-                        possibleMoves.append(leftCap)
-                    elif checkLoc == rightCap:
-                        possibleMoves.append(rightCap)
-            if oneSpacePossible: ### append possible moves
-                possibleMoves.append(oneSpace)
-            if twoSpacePossible:
-                possibleMoves.append(twoSpace)
-            return possibleMoves
-
-    
-class Rook(Piece):
-    def __init__(self,x,y,type,colour,moveCount):
-        super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 5
-    
-    def PossibleMoves(self,board):
-        # up to 8 spaces horizontal or vertical
-        # if not moved, and empty spaces between it and King
-        # who has also not moved, castle is allowed
-        # so long as in bounds
-        pass
-
-class Horse(Piece):
-    def __init__(self,x,y,type,colour,moveCount):
-        super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 3
-
-    def PossibleMoves(self,board):
-        # either 2 vertical and 1 horizontal or 2 horizontal 1 vertical
-        # so long as in bounds
-        pass
-        
-    
-class Bishop(Piece):
-    def __init__(self,x,y,type,colour,moveCount):
-        super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 3
-
-    def PossibleMoves(self,board):
-    # up to 8 spaces diagonally
-    # so long as in bounds
-        pass
-
-    
-class Queen(Piece):
-    def __init__(self,x,y,type,colour,moveCount):
-        super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 9
-    def PossibleMoves(self,board):
-    # combination of rook and bishop moves
-    # so long as in bounds
-        pass
-    
-class King(Piece):
-    def __init__(self,x,y,type,colour,moveCount):
-        super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 100
-    
-    def PossibleMoves(self,board):
-    #1 move in any direction
-    # if movecount = 0 and rook with LOS has movecount = 0, allow castle
-    # so long as in bounds
-        pass
-    
-    def isCastleValid():
-        pass
-
-    def isInCheck():
-        pass
 
 
 if __name__ == "__main__":
