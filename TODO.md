@@ -15,7 +15,7 @@
 
 ~~return to GUI to allow for selection of pieces and highlighting possible moves~~
 
-allow pieces to be moved with clicks
+~~allow pieces to be moved with clicks~~
 
 
 

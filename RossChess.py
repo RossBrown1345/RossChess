@@ -51,11 +51,13 @@ class Chess():
         #self.OpeningSequence()
         self.Board = [["" for x in range(8)] for y in range(8)] ### create 8*8 2D list to act as the board
         self.Pieces = [] ### this list contains all pieces
+        self.Turn = "White" ### White will play first
         #self.CreatePieces() ### create all pieces and add to Pieces
         self.PMCP() ### this is for custom testing of possible moves
         self.PopulateBoard() ### populate board
         self.DisplayBoard() ### display board
         self.StartGUIWindow() ### start GUI window
+        
     
     def __str__(self): ###create a string representation of the game
         BoardFormat = "| {:^2}{:^2}"
@@ -113,17 +115,11 @@ class Chess():
         for move in moveList:
             self.Window.fill(Cyan,((move[0] * 80),( move[1] * 80), 80, 80))
         pygame.display.update()
-        print("done")
+        #print("done")
 
 
-    def StartGUIWindow(self):
-        ### everythign for the GUI gameplay has to originate in here
-        pygame.init() ### initialise pygame
-        #print("Loading.")
-        WindowSize = 640 ### set the window size
-        self.Window = pygame.display.set_mode((WindowSize, WindowSize)) ### create window
-        self.Window.fill((255,255,255))
-        self.GUIUpdateBoard(None)
+    def GUIGamplayLoop(self):
+        self.isPieceChosen = False
         run = True
         while run:
             Event = pygame.event.poll()
@@ -135,19 +131,60 @@ class Chess():
                 (mouseX,mouseY) = pygame.mouse.get_pos() ### get the position of the mouse
                 mouseLoc = (int(mouseX / 80),int( mouseY / 80)) ### convert to the board location
                 #print(mouseLoc)
-                chosenPiece = None ### assume space is empty
-                for piece in self.Pieces:
-                    if piece.GetLocation() == mouseLoc:
-                        chosenPiece = piece ### space is not empty, assign piece
-            
+                if not self.isPieceChosen: ### there is no current piece chosen
+                    chosenPiece = None ### assume space is empty
+                    for piece in self.Pieces:
+                        if piece.GetLocation() == mouseLoc and piece.GetColour() == self.Turn:
+                            chosenPiece = piece ### space is not empty, assign piece
+                            self.isPieceChosen = True
+                    self.GUIUpdateBoard(chosenPiece)
+
+                else: ### a piece has been chosen, dont reference chosenPiece outside of this, except in GUIUpdateBoard()
+                    ### bases to cover:
+                    # selecting different piece
+                    # capture move
+                    # non capture move
+                    m = True
+                    for piece in self.Pieces:
+                        if piece.GetLocation() == mouseLoc and piece.GetColour() == self.Turn: ### a different piece was chosen to move
+                            chosenPiece = piece ### space is not empty, assign piece
+                            self.isPieceChosen = True
+                            m = False
+                            break
+                        elif piece.GetLocation() == mouseLoc: ### chosen piece is an enemy
+                            ### a piece has been clicked that is not a teammate
+                            ### make sure to break
+                            capturePiece = piece 
+                            self.MovePiece(chosenPiece.GetLocation() , capturePiece.GetLocation())
+                            self.GUIUpdateBoard(None)
+                            self.isPieceChosen = False
+                            m = False
+                            break
+                    if m:
+                        self.MovePiece(chosenPiece.GetLocation(), mouseLoc) #### problem is here, chosenPiece/piece.GetLocation() isnt getting the original piece
+
+                    self.GUIUpdateBoard(chosenPiece)
+
+                    print("second click")
 
 
 
-                self.GUIUpdateBoard(chosenPiece)
                 # self.PopulateBoard()
                 # self.DisplayBoard()
 
                 # self.MakeMove()
+
+
+
+    def StartGUIWindow(self):
+        ### everythign for the GUI gameplay has to originate in here
+        pygame.init() ### initialise pygame
+        #print("Loading.")
+        WindowSize = 640 ### set the window size
+        self.Window = pygame.display.set_mode((WindowSize, WindowSize)) ### create window
+        self.Window.fill((255,255,255))
+        self.GUIUpdateBoard(None)
+        self.GUIGamplayLoop()
                 
     
     def GUIUpdateBoard(self,chosenPiece):
@@ -169,10 +206,10 @@ class Chess():
         if chosenPiece != None: ### do not reference chosnnPiece outside of this
                     chosenPieceMoves = chosenPiece.PossibleMoves(self.Pieces)
                     self.HighlightCyan(chosenPieceMoves)
-                    print(chosenPieceMoves)
+                    #print(chosenPieceMoves)
 
         for piece in self.Pieces: ### for every piece remaining, concat the colour and type, get image 
-            #print(piece.GetColour() + piece.GetPieceType() + "at : " , piece.x , "," , piece.y)
+            print(piece.GetColour() + piece.GetPieceType() + "at : " , piece.x , "," , piece.y)
             spriteString = piece.GetColour() + piece.GetPieceType()
             if piece.GetLocation() in chosenPieceMoves:
                 Image = pygame.image.load("sprites\\"+spriteString+"Cyan.png")
@@ -190,17 +227,19 @@ class Chess():
         chosenPiece = None ### assume the chosen square is empty
         deadPiece = None ### assume the destination square is empty
         for piece in self.Pieces: ### search all pieces
-            if (piece.x,piece.y) == startLoc: ### if there is a piece at the start point, it will be moved
+            if piece.GetLocation() == startLoc: ### if there is a piece at the start point, it will be moved
                 chosenPiece = piece
-            if (piece.x,piece.y) == endLoc: ### if there is a piece at the end point, it will be removed
+            if piece.GetLocation() == endLoc: ### if there is a piece at the end point, it will be removed
                 deadPiece = piece
         if deadPiece != None: ### remove the deadpiece if there is one
             self.Pieces.remove(deadPiece)
-        if chosenPiece != None:
-            print(chosenPiece.PossibleMoves(self.Pieces))
-            chosenPiece.IncrementMoveCount()
-            chosenPiece.SetLocation(endLoc)
-            chosenPiece.PossibleMoves(self.Pieces)
+        
+        print(chosenPiece.GetPieceType())
+        chosenPiece.IncrementMoveCount()
+        chosenPiece.SetLocation(endLoc)
+        
+        self.GUIUpdateBoard(None)
+        #chosenPiece.PossibleMoves(self.Pieces)
             
         #print(chosenPiece.GetLocation())
         

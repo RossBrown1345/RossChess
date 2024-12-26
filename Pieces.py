@@ -267,7 +267,7 @@ class Horse(Piece):
 
         (startX,startY) = self.GetLocation()
         possibleMoves = []
-        potentialMoves = [(-1,-2),(1,-2),(2,-1),(2,1),(1,2),(-1,2),(-2,1),(-2,1)]  ### the eight possible moves the Horse can make, relative to its own location
+        potentialMoves = [(-1,-2),(1,-2),(2,-1),(2,1),(1,2),(-1,2),(-2,1),(-2,-1)]  ### the eight possible moves the Horse can make, relative to its own location
         
         for dir in potentialMoves:
             checkLoc= (startX + dir[0], startY + dir[1]) ### check the location of each move
