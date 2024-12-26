@@ -108,14 +108,22 @@ class Chess():
         print("\n")
         time.sleep(1)
 
+    def HighlightCyan(self,moveList):
+        Cyan = (0,255,255)
+        for move in moveList:
+            self.Window.fill(Cyan,((move[0] * 80),( move[1] * 80), 80, 80))
+        pygame.display.update()
+        print("done")
+
+
     def StartGUIWindow(self):
         ### everythign for the GUI gameplay has to originate in here
         pygame.init() ### initialise pygame
-        print("Loading.")
+        #print("Loading.")
         WindowSize = 640 ### set the window size
         self.Window = pygame.display.set_mode((WindowSize, WindowSize)) ### create window
         self.Window.fill((255,255,255))
-        self.GUIUpdateBoard()
+        self.GUIUpdateBoard(None)
         run = True
         while run:
             Event = pygame.event.poll()
@@ -131,20 +139,18 @@ class Chess():
                 for piece in self.Pieces:
                     if piece.GetLocation() == mouseLoc:
                         chosenPiece = piece ### space is not empty, assign piece
-                if chosenPiece != None: ### do not reference chosnnPiece outside of this
-                    chosenPieceMoves = chosenPiece.PossibleMoves(self.Pieces)
-                    print(chosenPieceMoves)
-                    
+            
 
 
-                self.GUIUpdateBoard()
+
+                self.GUIUpdateBoard(chosenPiece)
                 # self.PopulateBoard()
                 # self.DisplayBoard()
 
                 # self.MakeMove()
                 
     
-    def GUIUpdateBoard(self):
+    def GUIUpdateBoard(self,chosenPiece):
         #print("Loading..")
         DarkGrey = (80, 80, 80)
         DarkWhite = (200, 200, 200)
@@ -158,11 +164,21 @@ class Chess():
             for j in range(-80,720,160):  
                 self.Window.fill(DarkWhite,(i, j, 80, 80))
                 self.Window.fill(DarkGrey,(i, j + 80, 80, 80))
+
+        chosenPieceMoves = []
+        if chosenPiece != None: ### do not reference chosnnPiece outside of this
+                    chosenPieceMoves = chosenPiece.PossibleMoves(self.Pieces)
+                    self.HighlightCyan(chosenPieceMoves)
+                    print(chosenPieceMoves)
+
         for piece in self.Pieces: ### for every piece remaining, concat the colour and type, get image 
             #print(piece.GetColour() + piece.GetPieceType() + "at : " , piece.x , "," , piece.y)
             spriteString = piece.GetColour() + piece.GetPieceType()
-            Image = pygame.image.load("sprites\\"+spriteString+".png")
-            self.Window.blit(Image,piece.Position)
+            if piece.GetLocation() in chosenPieceMoves:
+                Image = pygame.image.load("sprites\\"+spriteString+"Cyan.png")
+            else:
+                Image = pygame.image.load("sprites\\"+spriteString+".png")
+            self.Window.blit(Image,piece.GetPosition())
         pygame.display.update()
         #print("Done!")
 
@@ -209,14 +225,14 @@ class Chess():
         print(self.__str__())
 
     def PMCP(self):
-        self.Pieces.append(Pieces.Horse(6,6,"Horse","Black",0))
-        # self.Pieces.append(Pieces.Rook(6,6,"Rook","Black",0))
-        # self.Pieces.append(Pieces.Rook(2,2,"Rook","White",0))
-        # self.Pieces.append(Pieces.Rook(3,4,"Rook","Black",0))
+        self.Pieces.append(Pieces.Horse(6,6,"Horse","White",0))
+        self.Pieces.append(Pieces.Rook(5,4,"Rook","Black",0))
+        self.Pieces.append(Pieces.Rook(5,5,"Rook","White",0))
+        self.Pieces.append(Pieces.Rook(7,4,"Rook","White",0))
         # self.Pieces.append(Pieces.Rook(2,3,"Rook","White",0))
 
         piece = self.Pieces[0]
-        print("s",piece.PossibleMoves(self.Pieces))
+        #print("s",piece.PossibleMoves(self.Pieces))
 
     def CreatePieces(self):
         for i in range(0,8):### populate Pawns

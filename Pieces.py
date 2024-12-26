@@ -25,6 +25,8 @@ class Piece(): ### parent class for all pieces
         
 
     ### getters
+    def GetPosition(self):
+        return self.Position
     def GetLocation(self): 
         return (self.x, self.y)
     def GetColour(self):
