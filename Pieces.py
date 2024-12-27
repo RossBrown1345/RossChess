@@ -206,7 +206,7 @@ class Pawn(Piece):
             twoSpacePossible = True
 
         if self.GetColour() == "White": ##get white moves
-            oneSpace = (startX, startY -1) ## the four potential moves of a pawn, enpassant to be added later
+            oneSpace = (startX, startY - 1) ## the four potential moves of a pawn, enpassant to be added later
             twoSpace = (startX, startY - 2)
             leftCap = (startX - 1 , startY - 1)
             rightCap = (startX + 1, startY - 1)
@@ -217,6 +217,7 @@ class Pawn(Piece):
                 if checkLoc == oneSpace or not self.IsInBounds(oneSpace):
                     oneSpacePossible = False
                     twoSpacePossible = False
+
                 if piece.GetColour() == "Black": ### check the black pieces and append possible captures
                     if checkLoc == leftCap :
                         possibleMoves.append(leftCap)
@@ -240,7 +241,6 @@ class Pawn(Piece):
                 if checkLoc == oneSpace or not self.IsInBounds(oneSpace):
                     oneSpacePossible = False
                     twoSpacePossible = False
-                    break
                 if piece.GetColour() == "White": ### check the white pieces and append possible captures
                     if checkLoc == leftCap:
                         possibleMoves.append(leftCap)
@@ -320,13 +320,10 @@ class King(Piece):
 
         # get list of all moves opponent can make
         # remove any overlapping from possible moves
-
         # inCheckMoves = []
         # for piece in board:
         #     if piece.GetColour() != self.GetColour:
         #         inCheckMoves += piece.PossibleMoves(board)
-                
-
 
         for dir in potentialMoves:
             checkLoc= (startX + dir[0], startY + dir[1]) ### check the location of each move

@@ -99,7 +99,45 @@ class Chess():
 
         return whiteScore - blackScore
 
+    def PromoteWhite(self,chosenPiece):
+        promote = input(print("Enter the piece you would like to promote to : "))
         
+        if promote == "Pawn":
+            pass
+        elif promote == "Rook":
+            self.Pieces.append(Pieces.Rook(chosenPiece.x,chosenPiece.y,"Rook","White",chosenPiece.GetMoveCount()))
+            self.Pieces.remove(chosenPiece)
+        elif promote == "Horse":
+            self.Pieces.append(Pieces.Horse(chosenPiece.x,chosenPiece.y,"Horse","White",chosenPiece.GetMoveCount()))
+            self.Pieces.remove(chosenPiece)
+        elif promote == "Bishop":
+            self.Pieces.append(Pieces.Bishop(chosenPiece.x,chosenPiece.y,"Bishop","White",chosenPiece.GetMoveCount()))
+            self.Pieces.remove(chosenPiece)
+        elif promote == "Queen":
+            self.Pieces.append(Pieces.Queen(chosenPiece.x,chosenPiece.y,"Queen","White",chosenPiece.GetMoveCount()))
+            self.Pieces.remove(chosenPiece)
+        ### no need for an else, this will be replace with a GUI panel
+
+
+
+    def PromoteBlack(self,chosenPiece):
+        promote = input(print("Enter the piece you would like to promote to : "))
+                            
+        if promote == "Pawn":
+            pass
+        elif promote == "Rook":
+            self.Pieces.append(Pieces.Rook(chosenPiece.x,chosenPiece.y,"Rook","Black",chosenPiece.GetMoveCount()))
+            self.Pieces.remove(chosenPiece)
+        elif promote == "Horse":
+            self.Pieces.append(Pieces.Horse(chosenPiece.x,chosenPiece.y,"Horse","Black",chosenPiece.GetMoveCount()))
+            self.Pieces.remove(chosenPiece)
+        elif promote == "Bishop":
+            self.Pieces.append(Pieces.Bishop(chosenPiece.x,chosenPiece.y,"Bishop","Black",chosenPiece.GetMoveCount()))
+            self.Pieces.remove(chosenPiece)
+        elif promote == "Queen":
+            self.Pieces.append(Pieces.Queen(chosenPiece.x,chosenPiece.y,"Queen","Black",chosenPiece.GetMoveCount()))
+            self.Pieces.remove(chosenPiece)
+        ### no need for an else, this will be replace with a GUI panel
 
 
     def IsValidMove(self,checkPiece,destination):
@@ -156,6 +194,15 @@ class Chess():
                             break
                     if peacefulMove and self.IsValidMove(chosenPiece,mouseLoc): ### non capture move is chosen and valid move
                         self.MovePiece(chosenPiece.GetLocation(), mouseLoc,self.Pieces)
+
+                    if chosenPiece.GetPieceType() == "Pawn": ### if pawn moves, check if promotion possible
+                        if chosenPiece.GetColour() == "White" and chosenPiece.y == 0: ### white pawn is valid for promotion
+                            self.PromoteWhite(chosenPiece)
+                        elif chosenPiece.GetColour() == "Black" and chosenPiece.y == 7: ### black pawn is valid for promotion
+                            self.PromoteBlack(chosenPiece)
+
+
+
                     ### at this point any move that would be made, has been made
                     whiteScore = self.Evaluate()
                     chosenPiece = None ### deselect all
