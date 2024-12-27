@@ -4,11 +4,9 @@
 
 ~~then hang fire on GUI, work on possible moves for each piece~~
 
-# problems:
+# known problems:
 
-captures kill both pieces
 
-pieces can move anywhere
 
 
 # possible moves for
@@ -25,13 +23,13 @@ pieces can move anywhere
 ~~allow pieces to be moved with clicks~~
 
 
+~~gameplay loop~~
 
-
-gameplay loop
+~~score keeping~~
 
 check when game over
 
-score keeping
+
 
 castling
 promotion

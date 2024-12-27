@@ -116,7 +116,35 @@ class Chess():
             self.Window.fill(Cyan,((move[0] * 80),( move[1] * 80), 80, 80))
         pygame.display.update()
         #print("done")
+    
+    def Evaluate(self):
+        ### for now have both scores be positive
+        # if turns out need black to be negative, simple change
 
+        whiteScore = 0
+        blackScore = 0
+        for piece in self.Pieces:
+            if piece.GetColour() == "White":
+                whiteScore += piece.GetScore()
+            else:
+                blackScore += piece.GetScore()
+        
+        print ("white score : ",whiteScore,"\nblack score : ",blackScore)
+
+        if whiteScore > blackScore:
+            print("white +",whiteScore - blackScore)
+        elif blackScore != whiteScore:
+            print("black +",blackScore - whiteScore)
+        else:
+            print("even game")
+
+        
+
+
+    def IsValidMove(self,checkPiece,destination):
+        ### get piece and destination, return true if destination in possible moves
+        possibleMoves = checkPiece.PossibleMoves(self.Pieces)
+        return destination in possibleMoves
 
     def GUIGamplayLoop(self):
         self.isPieceChosen = False
@@ -133,8 +161,8 @@ class Chess():
                 #print(mouseLoc)
                 if not self.isPieceChosen: ### there is no current piece chosen
                     chosenPiece = None ### assume space is empty
-                    for piece in self.Pieces:
-                        if piece.GetLocation() == mouseLoc and piece.GetColour() == self.Turn:
+                    for piece in self.Pieces: ### check all pieces for the click location
+                        if piece.GetLocation() == mouseLoc and piece.GetColour() == self.Turn: ### a piece of the correct team is selected
                             chosenPiece = piece ### space is not empty, assign piece
                             self.isPieceChosen = True
                     self.GUIUpdateBoard(chosenPiece)
@@ -144,30 +172,29 @@ class Chess():
                     # selecting different piece
                     # capture move
                     # non capture move
-                    nonCaptureMove = True ## the same piece is being selectied
-                    for piece in self.Pieces:
+                    peacefulMove = True ## the same piece is being selectied
+                    for piece in self.Pieces: ### check all pieces for the 2nd click location
                         if piece.GetLocation() == mouseLoc and piece.GetColour() == self.Turn: ### a different piece was chosen to move
-                            chosenPiece = piece ### space is not empty, assign piece
-                            self.isPieceChosen = True
-                            m = False
-                            break
+                            chosenPiece = piece ### reassing selected piece
+                            self.isPieceChosen = True ### a piece is chosen
+                            peacefulMove = False ### there is no move being made, so peacefulMove = False
+                            break ### break the loop
                         elif piece.GetLocation() == mouseLoc: ### chosen piece is an enemy
-                            ### a piece has been clicked that is not a teammate
-                            ### make sure to break
-                            capturePiece = piece 
-                            self.MovePiece(chosenPiece.GetLocation() , capturePiece.GetLocation())
-                            self.GUIUpdateBoard(None)
-                            self.isPieceChosen = False
-                            m = False
+                            ### the location of 2nd mouse click is the enemy
+                            if self.IsValidMove(chosenPiece,mouseLoc): ### validate input move
+                                self.MovePiece(chosenPiece.GetLocation() , mouseLoc) ### move the first piece to the capture piece
+                            self.isPieceChosen = False ### a piece has been moved, deselect all
+                            peacefulMove = False ### this was not a peaceful move
                             break
-                    if nonCaptureMove: ### non capture move is chosen
+                    if peacefulMove and self.IsValidMove(chosenPiece,mouseLoc): ### non capture move is chosen and valid move
                         self.MovePiece(chosenPiece.GetLocation(), mouseLoc)
                     ### at this point any move that would be made, has been made
-                    chosenPiece = None
+                    self.Evaluate()
+                    chosenPiece = None ### deselect all
                     self.isPieceChosen = False
-                    self.GUIUpdateBoard(None)
+                    self.GUIUpdateBoard(None) 
 
-                    print("second click")
+                    #print("second click")
 
 
 
@@ -216,7 +243,7 @@ class Chess():
                     #print(chosenPieceMoves)
 
         for piece in self.Pieces: ### for every piece remaining, concat the colour and type, get image 
-            print(piece.GetColour() + piece.GetPieceType() + "at : " , piece.x , "," , piece.y)
+            #print(piece.GetColour() + piece.GetPieceType() + "at : " , piece.x , "," , piece.y)
             spriteString = piece.GetColour() + piece.GetPieceType()
             if piece.GetLocation() in chosenPieceMoves:
                 Image = pygame.image.load("sprites\\"+spriteString+"Cyan.png")
@@ -233,17 +260,20 @@ class Chess():
         #print(self.Pieces)
         chosenPiece = None ### assume the chosen square is empty
         deadPiece = None ### assume the destination square is empty
+        
         for piece in self.Pieces: ### search all pieces
             if piece.GetLocation() == startLoc: ### if there is a piece at the start point, it will be moved
                 chosenPiece = piece
             if piece.GetLocation() == endLoc: ### if there is a piece at the end point, it will be removed
                 deadPiece = piece
+
         if deadPiece != None: ### remove the deadpiece if there is one
             self.Pieces.remove(deadPiece)
         
         print(chosenPiece.GetPieceType())
-        chosenPiece.IncrementMoveCount()
         chosenPiece.SetLocation(endLoc)
+        chosenPiece.IncrementMoveCount()
+        
         
         self.ChangeTurn()
         self.GUIUpdateBoard(None)
@@ -260,9 +290,6 @@ class Chess():
             print("Please input a valid number, being 0, 1 or 2")
             GameMode = input("Please enter the number of players : > ")
         print(GameMode)
-        Cyan = (0,255, 255) ### colour for available moves
-        Selectedpiece = False ### no piece is selected
-
 
     def DisplayPieces(self):
         for piece in self.Pieces:

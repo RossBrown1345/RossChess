@@ -8,9 +8,10 @@ class Piece(): ### parent class for all pieces
         self.y = y
         self.type = type
         self.colour = colour
+        self.score = 0 ### this will be overloaded in child constructors, required for getscore
         self.moveCount = 0 ### may need to change to moveCount, or remove all
         ### multiply x and y locations by 80 to get the location on the display
-        self.Position = (self.x * 80, self.y * 80) ### return a tuple of location
+        self.position = (self.x * 80, self.y * 80) ### return a tuple of location
 
     def PossibleMoves(self,board):
         ### method to be overided, board is the list Chess.Pieces,
@@ -25,8 +26,10 @@ class Piece(): ### parent class for all pieces
         
 
     ### getters
+    def GetScore(self):
+        return self.score
     def GetPosition(self):
-        return self.Position
+        return self.position
     def GetLocation(self): 
         return (self.x, self.y)
     def GetColour(self):
@@ -43,7 +46,7 @@ class Piece(): ### parent class for all pieces
         self.UpdatePosition() ### update the position of the GUI
 
     def UpdatePosition(self):
-        self.Position = (self.x * 80, self.y * 80) ### return a tuple of location
+        self.position = (self.x * 80, self.y * 80) ### return a tuple of location
 
 
     def CheckDirection(self,checkLoc,board):
@@ -185,7 +188,7 @@ class Piece(): ### parent class for all pieces
 class Pawn(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 1
+        self.score = 1
 
     def PossibleMoves(self,board):
         # if nothing in front, move 1 space forward
@@ -250,7 +253,7 @@ class Pawn(Piece):
 class Rook(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 5
+        self.score = 5
 
     def PossibleMoves(self,board):
         ### return the rook moves
@@ -259,7 +262,7 @@ class Rook(Piece):
 class Horse(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 3
+        self.score = 3
 
     def PossibleMoves(self,board):
         # either 2 vertical and 1 horizontal or 2 horizontal 1 vertical
@@ -285,7 +288,7 @@ class Horse(Piece):
 class Bishop(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 3  
+        self.score = 3  
     
     def PossibleMoves(self,board):
         return self.BishopMoves(board)
@@ -293,7 +296,7 @@ class Bishop(Piece):
 class Queen(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 9
+        self.score = 9
     def PossibleMoves(self,board):
     # combination of rook and bishop moves
     # so long as in bounds
@@ -302,7 +305,7 @@ class Queen(Piece):
 class King(Piece):
     def __init__(self,x,y,type,colour,moveCount):
         super().__init__(x,y,type,colour,moveCount) ### call parent init
-        self.Score = 100
+        self.score = 100
     
     def PossibleMoves(self,board):
         #1 move in any direction
