@@ -27,7 +27,7 @@
 
 ~~score keeping~~
 
-check when game over
+~~check when game over~~
 
 
 king in check

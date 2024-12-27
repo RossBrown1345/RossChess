@@ -1,50 +1,8 @@
 ### RossChess! is back
-'''
-make board 2d list
-
-have parent class for pieces with attributes:
-score
-colour
-name
-location
-moveCount ### this is needed to pawns to en passant and rooks to castle
-
-and methods:
-move
-
-Pawn
-score : 1
-
-Rook
-score : 5
-
-Horse
-score: 3
-
-Bishop
-score : 3
-
-Queen
-score : 9
-
-King
-score : 100
-isCastleValid
-isInCheck
-
-
-make board methods
-capturing and score keeping
-
-have a list containing all pieces, to allow the same pieces to be moved without creating new instances
-
-backend will use 0 - 7, for x and y, front end will include A to H and 1 to 8
-'''
-
-
 import time
 import pygame
 import Pieces
+import copy
 
 class Chess():
     def __init__(self): ### game manager init
@@ -189,7 +147,7 @@ class Chess():
                             ### the location of 2nd mouse click is the enemy
                             capturePiece = piece
                             if self.IsValidMove(chosenPiece,mouseLoc): ### validate input move
-                                self.MovePiece(chosenPiece.GetLocation() , mouseLoc) ### move the first piece to the capture piece
+                                self.MovePiece(chosenPiece.GetLocation() , mouseLoc,self.Pieces) ### move the first piece to the capture piece
                                 if capturePiece.GetPieceType() == "King":
                                     self.Winner = chosenPiece.GetColour()
                                     run = False
@@ -197,7 +155,7 @@ class Chess():
                             peacefulMove = False ### this was not a peaceful move
                             break
                     if peacefulMove and self.IsValidMove(chosenPiece,mouseLoc): ### non capture move is chosen and valid move
-                        self.MovePiece(chosenPiece.GetLocation(), mouseLoc)
+                        self.MovePiece(chosenPiece.GetLocation(), mouseLoc,self.Pieces)
                     ### at this point any move that would be made, has been made
                     whiteScore = self.Evaluate()
                     chosenPiece = None ### deselect all
@@ -267,19 +225,19 @@ class Chess():
     # define a method that will take a peice, move it to the desired location, and remove any opponent in that
     # location from self.pieces
 
-    def MovePiece(self,startLoc,endLoc): ### this removes a piece from the board
+    def MovePiece(self,startLoc,endLoc,gameState): ### this removes a piece from the board
         #print(self.Pieces)
         chosenPiece = None ### assume the chosen square is empty
         deadPiece = None ### assume the destination square is empty
         
-        for piece in self.Pieces: ### search all pieces
+        for piece in gameState: ### search all pieces
             if piece.GetLocation() == startLoc: ### if there is a piece at the start point, it will be moved
                 chosenPiece = piece
             if piece.GetLocation() == endLoc: ### if there is a piece at the end point, it will be removed
                 deadPiece = piece
 
         if deadPiece != None: ### remove the deadpiece if there is one
-            self.Pieces.remove(deadPiece)
+            gameState.remove(deadPiece)
         
         print(chosenPiece.GetPieceType())
         chosenPiece.SetLocation(endLoc)
@@ -288,11 +246,11 @@ class Chess():
         
         self.ChangeTurn()
         self.GUIUpdateBoard(None)
-        #chosenPiece.PossibleMoves(self.Pieces)
+        #chosenPiece.PossibleMoves(gameState)
             
         #print(chosenPiece.GetLocation())
         
-        #print(self.Pieces)
+        #print(gameState)
 
     def SelectGameMode(self):
         ### to be removed in favour of GUI selection
