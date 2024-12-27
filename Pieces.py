@@ -216,6 +216,7 @@ class Pawn(Piece):
                     twoSpacePossible = False
                 if checkLoc == oneSpace or not self.IsInBounds(oneSpace):
                     oneSpacePossible = False
+                    twoSpacePossible = False
                 if piece.GetColour() == "Black": ### check the black pieces and append possible captures
                     if checkLoc == leftCap :
                         possibleMoves.append(leftCap)
@@ -238,6 +239,8 @@ class Pawn(Piece):
                     twoSpacePossible = False
                 if checkLoc == oneSpace or not self.IsInBounds(oneSpace):
                     oneSpacePossible = False
+                    twoSpacePossible = False
+                    break
                 if piece.GetColour() == "White": ### check the white pieces and append possible captures
                     if checkLoc == leftCap:
                         possibleMoves.append(leftCap)

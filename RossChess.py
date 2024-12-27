@@ -52,6 +52,7 @@ class Chess():
         self.Board = [["" for x in range(8)] for y in range(8)] ### create 8*8 2D list to act as the board
         self.Pieces = [] ### this list contains all pieces
         self.Turn = "White" ### White will play first
+        self.Winner = None
         self.CreatePieces() ### create all pieces and add to Pieces
         #self.PMCP() ### this is for custom testing of possible moves
         self.PopulateBoard() ### populate board
@@ -138,6 +139,8 @@ class Chess():
         else:
             print("even game")
 
+        return whiteScore - blackScore
+
         
 
 
@@ -150,6 +153,9 @@ class Chess():
         self.isPieceChosen = False
         run = True
         while run:
+            
+
+
             Event = pygame.event.poll()
             if Event.type == pygame.QUIT:
                 pygame.quit()
@@ -181,15 +187,19 @@ class Chess():
                             break ### break the loop
                         elif piece.GetLocation() == mouseLoc: ### chosen piece is an enemy
                             ### the location of 2nd mouse click is the enemy
+                            capturePiece = piece
                             if self.IsValidMove(chosenPiece,mouseLoc): ### validate input move
                                 self.MovePiece(chosenPiece.GetLocation() , mouseLoc) ### move the first piece to the capture piece
+                                if capturePiece.GetPieceType() == "King":
+                                    self.Winner = chosenPiece.GetColour()
+                                    run = False
                             self.isPieceChosen = False ### a piece has been moved, deselect all
                             peacefulMove = False ### this was not a peaceful move
                             break
                     if peacefulMove and self.IsValidMove(chosenPiece,mouseLoc): ### non capture move is chosen and valid move
                         self.MovePiece(chosenPiece.GetLocation(), mouseLoc)
                     ### at this point any move that would be made, has been made
-                    self.Evaluate()
+                    whiteScore = self.Evaluate()
                     chosenPiece = None ### deselect all
                     self.isPieceChosen = False
                     self.GUIUpdateBoard(None) 
@@ -202,6 +212,7 @@ class Chess():
                 # self.DisplayBoard()
 
                 # self.MakeMove()
+        print("Game Over, winner : ",self.Winner)
 
     def ChangeTurn(self):
         if self.Turn == "White":
