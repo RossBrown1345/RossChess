@@ -318,12 +318,25 @@ class King(Piece):
         possibleMoves = []
         potentialMoves = [(-1,1),(-1,0),(-1,-1),(0,-1),(1,-1),(1,0),(1,1),(0,1)] ### the eight possible moves the king can make, relative to its own location
 
+        # get list of all moves opponent can make
+        # remove any overlapping from possible moves
+
+        # inCheckMoves = []
+        # for piece in board:
+        #     if piece.GetColour() != self.GetColour:
+        #         inCheckMoves += piece.PossibleMoves(board)
+                
+
+
         for dir in potentialMoves:
             checkLoc= (startX + dir[0], startY + dir[1]) ### check the location of each move
             if self.IsInBounds(checkLoc): ### if move is in bounds
                 move,_ = self.CheckDirection(checkLoc,board) ### emptySpace is irrelevant here
                 if move != (-1,-1): ### if piece in checkLoc isnt teammate
+                    #if checkLoc not in inCheckMoves:
                     possibleMoves.append(move)
+
+
         return possibleMoves
     
     def isCastleValid():

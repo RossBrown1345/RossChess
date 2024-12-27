@@ -30,7 +30,26 @@
 ~~check when game over~~
 
 
-king in check
+### king in check
+x bases to cover
+
+must move out of check if in check
+
+must not move into check,
+
+other piece can block check
+
+
+
+# check all moves for all opp pieces, and see if king location is present
+
+or
+
+# make minimax first, test a depth one, and if move is king location (same thing  as first option, likely more efficient )
+
+
+
+
 castling
 promotion
 en passant
