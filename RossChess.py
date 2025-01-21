@@ -11,6 +11,7 @@ class Chess():
         self.Pieces = [] ### this list contains all pieces
         self.Turn = "White" ### White will play first
         self.Winner = None
+        self.CheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
         self.CreatePieces() ### create all pieces and add to Pieces
         #self.PMCP() ### this is for custom testing of possible moves
         self.PopulateBoard() ### populate board
@@ -88,54 +89,33 @@ class Chess():
             else:
                 blackScore += piece.GetScore()
         
-        print ("white score : ",whiteScore,"\nblack score : ",blackScore)
+        #print ("white score : ",whiteScore,"\nblack score : ",blackScore)
 
-        if whiteScore > blackScore:
-            print("white +",whiteScore - blackScore)
-        elif blackScore != whiteScore:
-            print("black +",blackScore - whiteScore)
-        else:
-            print("even game")
+        # if whiteScore > blackScore:
+        #     print("white +",whiteScore - blackScore)
+        # elif blackScore != whiteScore:
+        #     print("black +",blackScore - whiteScore)
+        # else:
+        #     print("even game")
 
         return whiteScore - blackScore
 
-    def PromoteWhite(self,chosenPiece):
-        promote = input(print("Enter the piece you would like to promote to : "))
-        
-        if promote == "Pawn":
-            pass
-        elif promote == "Rook":
-            self.Pieces.append(Pieces.Rook(chosenPiece.x,chosenPiece.y,"Rook","White",chosenPiece.GetMoveCount()))
-            self.Pieces.remove(chosenPiece)
-        elif promote == "Horse":
-            self.Pieces.append(Pieces.Horse(chosenPiece.x,chosenPiece.y,"Horse","White",chosenPiece.GetMoveCount()))
-            self.Pieces.remove(chosenPiece)
-        elif promote == "Bishop":
-            self.Pieces.append(Pieces.Bishop(chosenPiece.x,chosenPiece.y,"Bishop","White",chosenPiece.GetMoveCount()))
-            self.Pieces.remove(chosenPiece)
-        elif promote == "Queen":
-            self.Pieces.append(Pieces.Queen(chosenPiece.x,chosenPiece.y,"Queen","White",chosenPiece.GetMoveCount()))
-            self.Pieces.remove(chosenPiece)
-        ### no need for an else, this will be replace with a GUI panel
-
-
-
-    def PromoteBlack(self,chosenPiece):
+    def Promote(self,chosenPiece,colour):
         promote = input(print("Enter the piece you would like to promote to : "))
                             
         if promote == "Pawn":
             pass
         elif promote == "Rook":
-            self.Pieces.append(Pieces.Rook(chosenPiece.x,chosenPiece.y,"Rook","Black",chosenPiece.GetMoveCount()))
+            self.Pieces.append(Pieces.Rook(chosenPiece.x,chosenPiece.y,"Rook",colour,chosenPiece.GetMoveCount()))
             self.Pieces.remove(chosenPiece)
         elif promote == "Horse":
-            self.Pieces.append(Pieces.Horse(chosenPiece.x,chosenPiece.y,"Horse","Black",chosenPiece.GetMoveCount()))
+            self.Pieces.append(Pieces.Horse(chosenPiece.x,chosenPiece.y,"Horse",colour,chosenPiece.GetMoveCount()))
             self.Pieces.remove(chosenPiece)
         elif promote == "Bishop":
-            self.Pieces.append(Pieces.Bishop(chosenPiece.x,chosenPiece.y,"Bishop","Black",chosenPiece.GetMoveCount()))
+            self.Pieces.append(Pieces.Bishop(chosenPiece.x,chosenPiece.y,"Bishop",colour,chosenPiece.GetMoveCount()))
             self.Pieces.remove(chosenPiece)
         elif promote == "Queen":
-            self.Pieces.append(Pieces.Queen(chosenPiece.x,chosenPiece.y,"Queen","Black",chosenPiece.GetMoveCount()))
+            self.Pieces.append(Pieces.Queen(chosenPiece.x,chosenPiece.y,"Queen",colour,chosenPiece.GetMoveCount()))
             self.Pieces.remove(chosenPiece)
         ### no need for an else, this will be replace with a GUI panel
 
@@ -143,6 +123,18 @@ class Chess():
     def IsValidMove(self,checkPiece,destination):
         ### get piece and destination, return true if destination in possible moves
         possibleMoves = checkPiece.PossibleMoves(self.Pieces)
+        
+        fakePieces = copy.deepcopy(self.Pieces)
+        
+
+        if self.CheckActive:
+            print("IsValidMove says check active")
+
+        #### here we can check if a move will exit a check
+
+
+
+
         return destination in possibleMoves
 
     def GUIGamplayLoop(self):
@@ -157,7 +149,7 @@ class Chess():
                 pygame.quit()
                 break
             elif Event.type == pygame.MOUSEBUTTONDOWN:
-                print(pygame.mouse.get_pos())
+                #print(pygame.mouse.get_pos())
                 (mouseX,mouseY) = pygame.mouse.get_pos() ### get the position of the mouse
                 mouseLoc = (int(mouseX / 80),int( mouseY / 80)) ### convert to the board location
                 #print(mouseLoc)
@@ -197,17 +189,28 @@ class Chess():
 
                     if chosenPiece.GetPieceType() == "Pawn": ### if pawn moves, check if promotion possible
                         if chosenPiece.GetColour() == "White" and chosenPiece.y == 0: ### white pawn is valid for promotion
-                            self.PromoteWhite(chosenPiece)
+                            self.Promote(chosenPiece,"White")
                         elif chosenPiece.GetColour() == "Black" and chosenPiece.y == 7: ### black pawn is valid for promotion
-                            self.PromoteBlack(chosenPiece)
+                            self.Promote(chosenPiece,"Black")
 
 
 
                     ### at this point any move that would be made, has been made
+
+                    ### check if a king in check
+                    for piece in self.Pieces:
+                        if piece.GetPieceType() == "King" and piece.GetColour() == self.Turn:
+                            print("found my  king")
+                            kingLoc = piece.GetLocation()
+                            break
+
+
                     whiteScore = self.Evaluate()
                     chosenPiece = None ### deselect all
                     self.isPieceChosen = False
                     self.GUIUpdateBoard(None) 
+
+                    self.InCheck(kingLoc,self.Pieces)
 
                     #print("second click")
 
@@ -218,6 +221,24 @@ class Chess():
 
                 # self.MakeMove()
         print("Game Over, winner : ",self.Winner)
+
+
+
+    def InCheck(self,King,Pieces):
+        ### may cause issues !!!!
+
+        ### search all opp peices, return true if king in check
+        ### have the current king passed as a paramater, compare coords to every opp possible move
+        for piece in Pieces:
+            if piece.GetColour() != self.Turn: ### opp peice
+                for move in piece.PossibleMoves(Pieces):
+                    if move == King:
+                        self.CheckActive = True
+                        print("check : ",self.CheckActive)
+                        return
+        self.CheckActive = False
+        print("check : ",self.CheckActive)
+
 
     def ChangeTurn(self):
         if self.Turn == "White":
@@ -255,6 +276,11 @@ class Chess():
         chosenPieceMoves = []
         if chosenPiece != None: ### do not reference chosnnPiece outside of this
                     chosenPieceMoves = chosenPiece.PossibleMoves(self.Pieces)
+
+
+                    ########
+
+
                     self.HighlightCyan(chosenPieceMoves)
                     #print(chosenPieceMoves)
 
@@ -286,7 +312,7 @@ class Chess():
         if deadPiece != None: ### remove the deadpiece if there is one
             gameState.remove(deadPiece)
         
-        print(chosenPiece.GetPieceType())
+        #print(chosenPiece.GetPieceType())
         chosenPiece.SetLocation(endLoc)
         chosenPiece.IncrementMoveCount()
         
@@ -305,7 +331,7 @@ class Chess():
         while GameMode != "2" and GameMode != "1" and GameMode != "0":
             print("Please input a valid number, being 0, 1 or 2")
             GameMode = input("Please enter the number of players : > ")
-        print(GameMode)
+        #print(GameMode)
 
     def DisplayPieces(self):
         for piece in self.Pieces:

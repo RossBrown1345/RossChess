@@ -39,3 +39,9 @@ it will then be iterated through in a different method to check if input move is
 for castling, check if move distance >1
 for en passant, check if valid rank and movecount of adjacent opp = 1 
 for promotion, make sure is opposite end of board
+
+
+### mini max ideas
+
+# for special moves
+have discrete tuples that would be out of bounds for moves like castling or promotion

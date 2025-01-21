@@ -32,25 +32,30 @@
 ### king in check
 x bases to cover
 
-must move out of check if in check
-
-must not move into check,
-
-other piece can block check
+~~detect if the king of the current turn is in check, covers discovered check~~
 
 
 
-# check all moves for all opp pieces, and see if king location is present
 
-or
+# must move out of check if in check
 
-# make minimax first, test a depth one, and if move is king location (same thing  as first option, likely more efficient )
+# other piece can block check
+
+can fell both of these at once, if king is in check, when selecting a piece and getting possible moves,
+remove all moves that dont set check to false,
+
+# must not move into check,
+
+
+
+
+
 
 
 
 
 castling
-promotion
+~~promotion~~
 en passant
 
 
@@ -70,6 +75,6 @@ depth 1 reordering
 
 
 add extra pygame panel to show game clock, and score difference, aswell as whos turn it is
-
+add pygame panel to allow promotion options
 
 
