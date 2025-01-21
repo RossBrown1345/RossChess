@@ -123,8 +123,19 @@ class Chess():
     def IsValidMove(self,checkPiece,destination):
         ### get piece and destination, return true if destination in possible moves
         possibleMoves = checkPiece.PossibleMoves(self.Pieces)
+        for piece in self.Pieces:
+            if piece.GetPieceType() == "King" and piece.GetColour() == self.Turn:
+                print("found my  king")
+                kingLoc = piece.GetLocation()
+                break
         
-        fakePieces = copy.deepcopy(self.Pieces)
+        ### get deep copy of fake pieces,
+        ### for each possible move, make the move, enquire if still in check, remove from possible moves
+        for move in possibleMoves:
+            fakePieces = copy.deepcopy(self.Pieces)
+            self.MovePiece(checkPiece.GetLocation(),move,fakePieces)
+            if self.InCheck(kingLoc,fakePieces):
+                possibleMoves.remove(move)
         
 
         if self.CheckActive:
@@ -210,7 +221,7 @@ class Chess():
                     self.isPieceChosen = False
                     self.GUIUpdateBoard(None) 
 
-                    self.InCheck(kingLoc,self.Pieces)
+                    self.CheckActive = self.InCheck(kingLoc,self.Pieces)
 
                     #print("second click")
 
@@ -235,9 +246,9 @@ class Chess():
                     if move == King:
                         self.CheckActive = True
                         print("check : ",self.CheckActive)
-                        return
-        self.CheckActive = False
+                        return True
         print("check : ",self.CheckActive)
+        return False
 
 
     def ChangeTurn(self):

@@ -6,7 +6,7 @@
 
 # known problems:
 
-
+MAKE MOVE IN FAKE CHECK GIVES BONUS MOVE IF IN CHECK
 
 # possible moves for
 
