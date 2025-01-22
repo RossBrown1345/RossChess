@@ -126,8 +126,7 @@ class Chess():
         possibleMoves = checkPiece.PossibleMoves(self.Pieces)
         for piece in self.Pieces:
             if piece.GetPieceType() == "King" and piece.GetColour() == self.Turn:
-                print("found my  king")
-                kingLoc = piece.GetLocation()
+                king = piece
                 break
         
         ### get deep copy of fake pieces,
@@ -136,15 +135,13 @@ class Chess():
 
         #call remove invalid with checkPiece.GetLocation()
 
-        possibleMoves = self.RemoveInvalid(possibleMoves,checkPiece.GetLocation(),kingLoc)
+        d = self.RemoveInvalid(possibleMoves,checkPiece.GetLocation(),king)
 
-        
-        if self.WhiteCheckActive or self.BlackCheckActive:
-            print("IsValidMove says check active")
+
 
         #### here we can check if a move will exit a check
 
-        return destination in possibleMoves
+        return destination in d
 
     def GUIGamplayLoop(self):
         self.isPieceChosen = False
@@ -207,22 +204,14 @@ class Chess():
                     ### at this point any move that would be made, has been made
 
                     ### check if a king in check
-                    for piece in self.Pieces:
-                        if piece.GetPieceType() == "King" and piece.GetColour() == self.Turn:
-                            print("found my  king")
-                            kingLoc = piece.GetLocation()
-                            break
-
+    
 
                     #whiteScore = self.Evaluate()
                     chosenPiece = None ### deselect all
                     self.isPieceChosen = False
+                    self.UpdateCheck()
                     self.GUIUpdateBoard(None) 
                     
-                    if self.Turn == "White":
-                        self.WhiteCheckActive = self.InCheck(kingLoc,self.Pieces)
-                    else:
-                        self.BlackCheckActive = self.InCheck(kingLoc,self.Pieces)
                     print("White in check :",self.WhiteCheckActive,"\nBlack in check : ",self.BlackCheckActive)
 
 
@@ -244,11 +233,22 @@ class Chess():
         ### search all opp peices, return true if king in check
         ### have the current king passed as a paramater, compare coords to every opp possible move
         for piece in Pieces:
-            if piece.GetColour() != self.Turn: ### opp peice
+            if piece.GetColour() != King.GetColour(): ### opp peice
                 for move in piece.PossibleMoves(Pieces):
                     if move == King:
+                        print(King.GetColour(),"King is in check")
                         return True
         return False
+    
+    def UpdateCheck(self):
+        for piece in self.Pieces:
+            if piece.GetPieceType() == "King":
+                if piece.GetColour() == "White":
+                    whiteKing = piece
+                else:
+                    blackKing = piece
+        self.WhiteCheckActive = self.InCheck(whiteKing,self.Pieces)
+        self.BlackCheckActive = self.InCheck(blackKing,self.Pieces)
 
 
     def ChangeTurn(self):
@@ -288,14 +288,16 @@ class Chess():
 
         if chosenPiece != None: ### do not reference chosnnPiece outside of this
                     for piece in self.Pieces:
-                        if piece.GetPieceType() == "King" and piece.GetColour() == chosenPiece.GetColour():
+                        if piece.GetPieceType() == "King" and piece.GetColour() == self.Turn:
                             king = piece
                     chosenPieceMoves = chosenPiece.PossibleMoves(self.Pieces)
-
-                    chosenPieceMoves = self.RemoveInvalid(chosenPieceMoves,chosenPiece.GetLocation(),king.GetLocation())
+                    print("pre cull ",chosenPieceMoves)
+                    print("black check : ",self.BlackCheckActive)
+                    d = self.RemoveInvalid(chosenPieceMoves,chosenPiece.GetLocation(),king)
                     ########
+                    print("post cull ",d)
 
-                    self.HighlightCyan(chosenPieceMoves)
+                    self.HighlightCyan(d)
                     #print(chosenPieceMoves)
 
         for piece in self.Pieces: ### for every piece remaining, concat the colour and type, get image 
@@ -312,7 +314,7 @@ class Chess():
     # define a method that will take a peice, move it to the desired location, and remove any opponent in that
     # location from self.pieces
 
-    def RemoveInvalid(self,possibleMoves,startLoc,kingLoc):
+    def RemoveInvalid(self,possibleMoves,startLoc,king):
         fakeWhiteCheck = False
         fakeBlackCheck = False
         if self.WhiteCheckActive:
@@ -321,13 +323,15 @@ class Chess():
             fakeBlackCheck = True
         for move in possibleMoves:
             fakePieces = copy.deepcopy(self.Pieces)
+            #print("pre move",fakePieces)
             self.MovePiece(startLoc,move,fakePieces,False)
             if self.Turn == "White":
-                fakeWhiteCheck = self.InCheck(kingLoc,fakePieces)
+                fakeWhiteCheck = self.InCheck(king,fakePieces)
                 if fakeWhiteCheck:
                     possibleMoves.remove(move)
             else:
-                fakeBlackCheck = self.InCheck(kingLoc,fakePieces)
+                #print("post move",fakePieces)
+                fakeBlackCheck = self.InCheck(king,fakePieces)
                 if fakeBlackCheck:
                     possibleMoves.remove(move)
 

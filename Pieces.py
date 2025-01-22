@@ -13,6 +13,10 @@ class Piece(): ### parent class for all pieces
         ### multiply x and y locations by 80 to get the location on the display
         self.position = (self.x * 80, self.y * 80) ### return a tuple of location
 
+    def __str__(self):
+        stringRep = self.colour + self.type + "at ", self.x,",",self.y
+        return stringRep
+
     def PossibleMoves(self,board):
         ### method to be overided, board is the list Chess.Pieces,
         pass
