@@ -11,7 +11,8 @@ class Chess():
         self.Pieces = [] ### this list contains all pieces
         self.Turn = "White" ### White will play first
         self.Winner = None
-        self.CheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
+        self.WhiteCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
+        self.BlackCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
         self.CreatePieces() ### create all pieces and add to Pieces
         #self.PMCP() ### this is for custom testing of possible moves
         self.PopulateBoard() ### populate board
@@ -131,20 +132,17 @@ class Chess():
         
         ### get deep copy of fake pieces,
         ### for each possible move, make the move, enquire if still in check, remove from possible moves
-        for move in possibleMoves:
-            fakePieces = copy.deepcopy(self.Pieces)
-            self.MovePiece(checkPiece.GetLocation(),move,fakePieces)
-            if self.InCheck(kingLoc,fakePieces):
-                possibleMoves.remove(move)
-        
 
-        if self.CheckActive:
+
+        #call remove invalid with checkPiece.GetLocation()
+
+        possibleMoves = self.RemoveInvalid(possibleMoves,checkPiece.GetLocation(),kingLoc)
+
+        
+        if self.WhiteCheckActive or self.BlackCheckActive:
             print("IsValidMove says check active")
 
         #### here we can check if a move will exit a check
-
-
-
 
         return destination in possibleMoves
 
@@ -188,7 +186,7 @@ class Chess():
                             ### the location of 2nd mouse click is the enemy
                             capturePiece = piece
                             if self.IsValidMove(chosenPiece,mouseLoc): ### validate input move
-                                self.MovePiece(chosenPiece.GetLocation() , mouseLoc,self.Pieces) ### move the first piece to the capture piece
+                                self.MovePiece(chosenPiece.GetLocation() , mouseLoc,self.Pieces,True) ### move the first piece to the capture piece
                                 if capturePiece.GetPieceType() == "King":
                                     self.Winner = chosenPiece.GetColour()
                                     run = False
@@ -196,7 +194,7 @@ class Chess():
                             peacefulMove = False ### this was not a peaceful move
                             break
                     if peacefulMove and self.IsValidMove(chosenPiece,mouseLoc): ### non capture move is chosen and valid move
-                        self.MovePiece(chosenPiece.GetLocation(), mouseLoc,self.Pieces)
+                        self.MovePiece(chosenPiece.GetLocation(), mouseLoc,self.Pieces,True)
 
                     if chosenPiece.GetPieceType() == "Pawn": ### if pawn moves, check if promotion possible
                         if chosenPiece.GetColour() == "White" and chosenPiece.y == 0: ### white pawn is valid for promotion
@@ -216,12 +214,17 @@ class Chess():
                             break
 
 
-                    whiteScore = self.Evaluate()
+                    #whiteScore = self.Evaluate()
                     chosenPiece = None ### deselect all
                     self.isPieceChosen = False
                     self.GUIUpdateBoard(None) 
+                    
+                    if self.Turn == "White":
+                        self.WhiteCheckActive = self.InCheck(kingLoc,self.Pieces)
+                    else:
+                        self.BlackCheckActive = self.InCheck(kingLoc,self.Pieces)
+                    print("White in check :",self.WhiteCheckActive,"\nBlack in check : ",self.BlackCheckActive)
 
-                    self.CheckActive = self.InCheck(kingLoc,self.Pieces)
 
                     #print("second click")
 
@@ -244,10 +247,7 @@ class Chess():
             if piece.GetColour() != self.Turn: ### opp peice
                 for move in piece.PossibleMoves(Pieces):
                     if move == King:
-                        self.CheckActive = True
-                        print("check : ",self.CheckActive)
                         return True
-        print("check : ",self.CheckActive)
         return False
 
 
@@ -285,12 +285,15 @@ class Chess():
                 self.Window.fill(DarkGrey,(i, j + 80, 80, 80))
 
         chosenPieceMoves = []
+
         if chosenPiece != None: ### do not reference chosnnPiece outside of this
+                    for piece in self.Pieces:
+                        if piece.GetPieceType() == "King" and piece.GetColour() == chosenPiece.GetColour():
+                            king = piece
                     chosenPieceMoves = chosenPiece.PossibleMoves(self.Pieces)
 
-
+                    chosenPieceMoves = self.RemoveInvalid(chosenPieceMoves,chosenPiece.GetLocation(),king.GetLocation())
                     ########
-
 
                     self.HighlightCyan(chosenPieceMoves)
                     #print(chosenPieceMoves)
@@ -309,7 +312,28 @@ class Chess():
     # define a method that will take a peice, move it to the desired location, and remove any opponent in that
     # location from self.pieces
 
-    def MovePiece(self,startLoc,endLoc,gameState): ### this removes a piece from the board
+    def RemoveInvalid(self,possibleMoves,startLoc,kingLoc):
+        fakeWhiteCheck = False
+        fakeBlackCheck = False
+        if self.WhiteCheckActive:
+            fakeWhiteCheck = True
+        if self.BlackCheckActive:
+            fakeBlackCheck = True
+        for move in possibleMoves:
+            fakePieces = copy.deepcopy(self.Pieces)
+            self.MovePiece(startLoc,move,fakePieces,False)
+            if self.Turn == "White":
+                fakeWhiteCheck = self.InCheck(kingLoc,fakePieces)
+                if fakeWhiteCheck:
+                    possibleMoves.remove(move)
+            else:
+                fakeBlackCheck = self.InCheck(kingLoc,fakePieces)
+                if fakeBlackCheck:
+                    possibleMoves.remove(move)
+
+        return possibleMoves
+
+    def MovePiece(self,startLoc,endLoc,gameState,real): ### this removes a piece from the board
         #print(self.Pieces)
         chosenPiece = None ### assume the chosen square is empty
         deadPiece = None ### assume the destination square is empty
@@ -327,9 +351,9 @@ class Chess():
         chosenPiece.SetLocation(endLoc)
         chosenPiece.IncrementMoveCount()
         
-        
-        self.ChangeTurn()
-        self.GUIUpdateBoard(None)
+        if real:
+            self.ChangeTurn()
+            self.GUIUpdateBoard(None)
         #chosenPiece.PossibleMoves(gameState)
             
         #print(chosenPiece.GetLocation())

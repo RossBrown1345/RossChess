@@ -6,7 +6,9 @@
 
 # known problems:
 
-MAKE MOVE IN FAKE CHECK GIVES BONUS MOVE IF IN CHECK
+
+removing invalid moves will only remove every other invalid move, investigate, remove()
+maybe accumulate invalid moves then remove as a list
 
 # possible moves for
 
@@ -42,7 +44,7 @@ x bases to cover
 # other piece can block check
 
 can fell both of these at once, if king is in check, when selecting a piece and getting possible moves,
-remove all moves that dont set check to false,
+remove all moves that dont set check to false. these are done, just need to update cyan moves
 
 # must not move into check,
 
