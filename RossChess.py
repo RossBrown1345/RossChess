@@ -11,8 +11,8 @@ class Chess():
         self.Pieces = [] ### this list contains all pieces
         self.Turn = "White" ### White will play first
         self.Winner = None
-        self.WhiteCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
-        self.BlackCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
+        #self.WhiteCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
+        #self.BlackCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
         self.CreatePieces() ### create all pieces and add to Pieces
         #self.PMCP() ### this is for custom testing of possible moves
         self.PopulateBoard() ### populate board
@@ -124,10 +124,10 @@ class Chess():
     def IsValidMove(self,checkPiece,destination):
         ### get piece and destination, return true if destination in possible moves
         possibleMoves = checkPiece.PossibleMoves(self.Pieces)
-        for piece in self.Pieces:
-            if piece.GetPieceType() == "King" and piece.GetColour() == self.Turn:
-                king = piece
-                break
+        # for piece in self.Pieces:
+        #     if piece.GetPieceType() == "King" and piece.GetColour() == self.Turn:
+        #         king = piece
+        #         break
         
         ### get deep copy of fake pieces,
         ### for each possible move, make the move, enquire if still in check, remove from possible moves
@@ -135,13 +135,13 @@ class Chess():
 
         #call remove invalid with checkPiece.GetLocation()
 
-        d = self.RemoveInvalid(possibleMoves,checkPiece.GetLocation(),king)
+        #d = self.RemoveInvalid(possibleMoves,checkPiece.GetLocation(),king)
 
 
 
         #### here we can check if a move will exit a check
 
-        return destination in d
+        return destination in possibleMoves
 
     def GUIGamplayLoop(self):
         self.isPieceChosen = False
@@ -209,10 +209,10 @@ class Chess():
                     #whiteScore = self.Evaluate()
                     chosenPiece = None ### deselect all
                     self.isPieceChosen = False
-                    self.UpdateCheck()
+                    #self.UpdateCheck()
                     self.GUIUpdateBoard(None) 
                     
-                    print("White in check :",self.WhiteCheckActive,"\nBlack in check : ",self.BlackCheckActive)
+                    #print("White in check :",self.WhiteCheckActive,"\nBlack in check : ",self.BlackCheckActive)
 
 
                     #print("second click")
@@ -291,13 +291,13 @@ class Chess():
                         if piece.GetPieceType() == "King" and piece.GetColour() == self.Turn:
                             king = piece
                     chosenPieceMoves = chosenPiece.PossibleMoves(self.Pieces)
-                    print("pre cull ",chosenPieceMoves)
-                    print("black check : ",self.BlackCheckActive)
-                    d = self.RemoveInvalid(chosenPieceMoves,chosenPiece.GetLocation(),king)
-                    ########
-                    print("post cull ",d)
+                    # print("pre cull ",chosenPieceMoves)
+                    # print("black check : ",self.BlackCheckActive)
+                    # d = self.RemoveInvalid(chosenPieceMoves,chosenPiece.GetLocation(),king)
+                    # ########
+                    # print("post cull ",d)
 
-                    self.HighlightCyan(d)
+                    self.HighlightCyan(chosenPieceMoves)
                     #print(chosenPieceMoves)
 
         for piece in self.Pieces: ### for every piece remaining, concat the colour and type, get image 
