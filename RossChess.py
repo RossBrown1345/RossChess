@@ -259,15 +259,36 @@ class Chess():
 
 
     def StartGUIWindow(self):
-        ### everythign for the GUI gameplay has to originate in here
+        ### everything for the GUI gameplay has to originate in here
+        ### Have main menu first
         pygame.init() ### initialise pygame
         #print("Loading.")
         WindowSize = 640 ### set the window size
         self.Window = pygame.display.set_mode((WindowSize, WindowSize)) ### create window
         self.Window.fill((255,255,255))
+        self.GUIMainMenu()
         self.GUIUpdateBoard(None)
         self.GUIGamplayLoop()
-                
+
+    def GUIMainMenu(self):
+        n = 0
+        while True:
+            Event = pygame.event.poll()
+            if n >= 250:
+                n = 0
+            n += 10
+            self.Window.fill((n,0,n))
+            pygame.display.update()
+            time.sleep(0.1)
+            
+
+            # if Event.type == pygame.QUIT:
+            #     pygame.quit()
+            #     break
+
+
+        return 0
+            
     
     def GUIUpdateBoard(self,chosenPiece):
         #print("Loading..")
@@ -385,8 +406,7 @@ class Chess():
         self.Pieces.append(Pieces.Rook(5,5,"Rook","White",0))
         self.Pieces.append(Pieces.Rook(7,4,"Rook","White",0))
         # self.Pieces.append(Pieces.Rook(2,3,"Rook","White",0))
-
-        piece = self.Pieces[0]
+        #piece = self.Pieces[0]
         #print("s",piece.PossibleMoves(self.Pieces))
 
     def CreatePieces(self):

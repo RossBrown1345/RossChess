@@ -49,13 +49,6 @@ remove all moves that dont set check to false. these are done, just need to upda
 # must not move into check,
 
 
-
-
-
-
-
-
-
 castling
 ~~promotion~~
 en passant
