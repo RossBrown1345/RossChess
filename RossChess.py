@@ -121,6 +121,10 @@ class Chess():
             self.Pieces.remove(chosenPiece)
         ### no need for an else, this will be replace with a GUI panel
 
+    def SelectPiece(self,location):
+        for piece in self.Pieces:
+            if piece.GetLocation() == location:
+                return piece
 
     def IsValidMove(self,checkPiece,destination):
         ### get piece and destination, return true if destination in possible moves
@@ -144,8 +148,23 @@ class Chess():
         possibleMoves = checkPiece.PossibleMoves(self.Pieces)
         return destination in possibleMoves
     
+    def JoshuaGetAllMoves(self,gameState,JoshuaColour):
+        allMoves =[]
+        for piece in gameState:
+            if piece.GetColour() == JoshuaColour:
+                possibleMoves = piece.PossibleMoves(gameState)
+                for move in possibleMoves:
+                    allMoves.append((piece.GetLocation(), move))
+        return allMoves
+    
 
     def MiniMax(self,gameState,depth,JoshuaColour,max):
+        ### to return the best move and game score
+        
+        
+        ### this will maxise for white, cleverness to come and switch sides
+
+
         ### base minimax, 
         ### check if terminal node reached
         ### get possible moves for side
@@ -162,7 +181,19 @@ class Chess():
         #     eval move, and if less than H value set move to best move
         gameScore = self.Evaluate(gameState)
         terminalNode = depth == 0 or (gameScore > 40 or gameScore < -40)
+        if terminalNode: ### check if terminal node reached
+            return None, gameScore
+        
 
+        JoshuaMoves = self.JoshuaGetAllMoves(gameState,JoshuaColour)
+        if max: ### maximising for Joshua
+            bestMove = JoshuaMoves[0]
+            hValue = -100000000000000000000 #heuristic value starts at - infinite
+            for move in JoshuaMoves:
+                JoshuaBoard = copy.deepcopy(self.Pieces)
+                self.MovePiece(move[0],move[1],JoshuaBoard,False)
+                _,
+    
 
         pass
 
@@ -577,12 +608,6 @@ class Chess():
         self.Board = [["" for x in range(8)] for y in range(8)] ### empty board
         for piece in self.Pieces: ### populate piece
             self.Board[piece.y][piece.x] = piece
-
-    def GetPieceFromTuple(self,inputLocation): ### get the chosen piece from the input location
-        for piece in self.Pieces:
-            startLoc = (piece.x,piece.y)
-            if startLoc == inputLocation: ### if the piece is present, return that piece
-                return piece
 
 
     
