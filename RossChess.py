@@ -143,13 +143,132 @@ class Chess():
 
         return destination in possibleMoves
 
-    def GUIGamplayLoop(self):
+
+    def Joshua(self,):
+        ### beginning of Joshua, build minimax, then ab pruning, then iterative deeping
+
+
+        ### minimax
+        ### get all possible moves, deep copy self.pieces
+        ### for each move, make move, evaluate, if new best move, return
+        ### have parameter for min and max,
+        ### return best mvoe
+        
+        
+        pass
+
+
+
+
+
+
+    def PvJoshua(self):
+        pygame.init() ### initialise pygame
+        #print("Loading.")
+        WindowSize = 640 ### set the window size
+        self.Window = pygame.display.set_mode((WindowSize, WindowSize)) ### create window
+        self.Window.fill((255,255,255))
+        self.GUIUpdateBoard(None)
+        ### when choosing side, have check for user selected side
+        print("wahoo")
+        playerTurn = "White"
+        JoshuaTurn = "Black"
         self.isPieceChosen = False
         run = True
         while run:
-            
+            if self.Turn == JoshuaTurn:
+                #joshua turn
 
 
+
+                 self.MovePiece((1,1),(1,3),self.Pieces,True)
+
+
+
+
+
+
+
+
+            else:
+                Event = pygame.event.poll()
+                if Event.type == pygame.QUIT:
+                    pygame.quit()
+                    break
+                elif Event.type == pygame.MOUSEBUTTONDOWN:
+                    #print(pygame.mouse.get_pos())
+                    (mouseX,mouseY) = pygame.mouse.get_pos() ### get the position of the mouse
+                    mouseLoc = (int(mouseX / 80),int( mouseY / 80)) ### convert to the board location
+                    #print(mouseLoc)
+                    if not self.isPieceChosen: ### there is no current piece chosen
+                        chosenPiece = None ### assume space is empty
+                        for piece in self.Pieces: ### check all pieces for the click location
+                            if piece.GetLocation() == mouseLoc and piece.GetColour() == self.Turn: ### a piece of the correct team is selected
+                                chosenPiece = piece ### space is not empty, assign piece
+                                self.isPieceChosen = True
+                        self.GUIUpdateBoard(chosenPiece)
+                    else: ### a piece has been chosen, dont reference chosenPiece outside of this, except in GUIUpdateBoard()
+                        ### bases to cover:
+                        # selecting different piece
+                        # capture move
+                        # non capture move
+                        peacefulMove = True ## the same piece is being selectied
+                        for piece in self.Pieces: ### check all pieces for the 2nd click location
+                            if piece.GetLocation() == mouseLoc and piece.GetColour() == self.Turn: ### a different piece was chosen to move
+                                chosenPiece = piece ### reassing selected piece
+                                self.isPieceChosen = True ### a piece is chosen
+                                peacefulMove = False ### there is no move being made, so peacefulMove = False
+                                break ### break the loop
+                            elif piece.GetLocation() == mouseLoc: ### chosen piece is an enemy
+                                ### the location of 2nd mouse click is the enemy
+                                capturePiece = piece
+                                if self.IsValidMove(chosenPiece,mouseLoc): ### validate input move
+                                    self.MovePiece(chosenPiece.GetLocation() , mouseLoc,self.Pieces,True) ### move the first piece to the capture piece
+                                    if capturePiece.GetPieceType() == "King":
+                                        self.Winner = chosenPiece.GetColour()
+                                        run = False
+                                self.isPieceChosen = False ### a piece has been moved, deselect all
+                                peacefulMove = False ### this was not a peaceful move
+                                break
+                        if peacefulMove and self.IsValidMove(chosenPiece,mouseLoc): ### non capture move is chosen and valid move
+                            self.MovePiece(chosenPiece.GetLocation(), mouseLoc,self.Pieces,True)
+                        if chosenPiece.GetPieceType() == "Pawn": ### if pawn moves, check if promotion possible
+                            if chosenPiece.GetColour() == "White" and chosenPiece.y == 0: ### white pawn is valid for promotion
+                                self.Promote(chosenPiece,"White")
+                            elif chosenPiece.GetColour() == "Black" and chosenPiece.y == 7: ### black pawn is valid for promotion
+                                self.Promote(chosenPiece,"Black")
+                        ### at this point any move that would be made, has been made
+                        ### check if a king in check
+                        #whiteScore = self.Evaluate()
+                        chosenPiece = None ### deselect all
+                        self.isPieceChosen = False
+                        #self.UpdateCheck()
+                        self.GUIUpdateBoard(None) 
+                        #print("White in check :",self.WhiteCheckActive,"\nBlack in check : ",self.BlackCheckActive)
+                # self.PopulateBoard()
+                # self.DisplayBoard()
+
+                # self.MakeMove()
+        print("Game Over, winner : ",self.Winner)
+
+
+
+
+
+
+        pass
+    
+
+    def PvP(self):
+        pygame.init() ### initialise pygame
+        #print("Loading.")
+        WindowSize = 640 ### set the window size
+        self.Window = pygame.display.set_mode((WindowSize, WindowSize)) ### create window
+        self.Window.fill((255,255,255))
+        self.GUIUpdateBoard(None)
+        self.isPieceChosen = False
+        run = True
+        while run:
             Event = pygame.event.poll()
             if Event.type == pygame.QUIT:
                 pygame.quit()
@@ -257,18 +376,25 @@ class Chess():
         else:
             self.Turn = "White"
 
+    def SelectMode(self):
+        gamemode = int(input("How many humans are playing? (0,1,2) : "))
+        while gamemode not in [0,1,2]:
+            gamemode = int(input("How many humans are playing? (0,1,2) : "))
+        return gamemode
 
     def StartGUIWindow(self):
         ### everything for the GUI gameplay has to originate in here
         ### Have main menu first
-        pygame.init() ### initialise pygame
-        #print("Loading.")
-        WindowSize = 640 ### set the window size
-        self.Window = pygame.display.set_mode((WindowSize, WindowSize)) ### create window
-        self.Window.fill((255,255,255))
-        self.GUIMainMenu()
-        self.GUIUpdateBoard(None)
-        self.GUIGamplayLoop()
+        gameMode = self.SelectMode()
+        #self.GUIMainMenu()
+        if gameMode == 2:
+            self.PvP()
+        elif gameMode == 1:
+            #v Joshua
+            self.PvJoshua()
+        else:
+            #Joshua v Joshua
+            pass
 
     def GUIMainMenu(self):
         n = 0
@@ -384,14 +510,6 @@ class Chess():
         #print(chosenPiece.GetLocation())
         
         #print(gameState)
-
-    def SelectGameMode(self):
-        ### to be removed in favour of GUI selection
-        GameMode = input("Please enter the number of players : > ") ### Main menu to ask for the gamemode
-        while GameMode != "2" and GameMode != "1" and GameMode != "0":
-            print("Please input a valid number, being 0, 1 or 2")
-            GameMode = input("Please enter the number of players : > ")
-        #print(GameMode)
 
     def DisplayPieces(self):
         for piece in self.Pieces:
