@@ -488,7 +488,7 @@ class Chess(): ###initialise the game
           print("Beta",Beta)
           print("Alpha",Alpha)
           print("min")
-        if NewValue < Value:### if the new value is >= the current value change the best move and value, the eqaul means that if no move with a score is possible, it will make the move that is farthest down the board, progressing the game more
+        if NewValue < Value:### if the new value is <= the current value change the best move and value, the eqaul means that if no move with a score is possible, it will make the move that is farthest down the board, progressing the game more
           Value = NewValue
           BestMove = move
         Beta = min(Beta,Value)

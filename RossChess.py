@@ -11,6 +11,7 @@ class Chess():
         self.Pieces = [] ### this list contains all pieces
         self.Turn = "White" ### White will play first
         self.Winner = None
+        self.JoshuaMoves = 0
         #self.WhiteCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
         #self.BlackCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
         self.CreatePieces() ### create all pieces and add to Pieces
@@ -78,13 +79,13 @@ class Chess():
         pygame.display.update()
         #print("done")
     
-    def Evaluate(self):
+    def Evaluate(self,gameState):
         ### for now have both scores be positive
         # if turns out need black to be negative, simple change
 
         whiteScore = 0
         blackScore = 0
-        for piece in self.Pieces:
+        for piece in gameState:
             if piece.GetColour() == "White":
                 whiteScore += piece.GetScore()
             else:
@@ -123,7 +124,7 @@ class Chess():
 
     def IsValidMove(self,checkPiece,destination):
         ### get piece and destination, return true if destination in possible moves
-        possibleMoves = checkPiece.PossibleMoves(self.Pieces)
+        
         # for piece in self.Pieces:
         #     if piece.GetPieceType() == "King" and piece.GetColour() == self.Turn:
         #         king = piece
@@ -140,22 +141,53 @@ class Chess():
 
 
         #### here we can check if a move will exit a check
-
+        possibleMoves = checkPiece.PossibleMoves(self.Pieces)
         return destination in possibleMoves
+    
+
+    def MiniMax(self,gameState,depth,JoshuaColour,max):
+        ### base minimax, 
+        ### check if terminal node reached
+        ### get possible moves for side
+        # if maximising:
+        #     set heuristic value to -infinite
+        #     for each move, make the move on a deepcopy of gameState then recursive call on 
+        #     fake gamestate with maximising false and depth - 1
+        #     when terminal node reached (depth = 0 or gameover)
+        #     evaluate move, and if more than H value, set move to best move 
+        # else:
+        #     set heuristic value to infinite
+        #     for each move, make move on deepcopy then rec call with maxmising true and depth -1
+        #     when terminal node reached (depth = 0 or gameover)
+        #     eval move, and if less than H value set move to best move
+        gameScore = self.Evaluate(gameState)
+        terminalNode = depth == 0 or (gameScore > 40 or gameScore < -40)
 
 
-    def Joshua(self,):
-        ### beginning of Joshua, build minimax, then ab pruning, then iterative deeping
+        pass
 
 
+    def JoshuaOpeningBook(self,moveCount):
+        openingBooks = (((4, 1),(4, 3)),((1, 0),(2, 2)),((3, 1),(3, 2)))
+        return openingBooks[moveCount]
+
+    def Joshua(self):
+        ### once minimax work, check opening book moves are valid, if not, use minimax
+        ### beginning of Joshua, start with opening book, build minimax, then ab pruning, then iterative deeping
         ### minimax
         ### get all possible moves, deep copy self.pieces
         ### for each move, make move, evaluate, if new best move, return
         ### have parameter for min and max,
         ### return best mvoe
+        if self.JoshuaMoves <= 2:
+            move = self.JoshuaOpeningBook(self.JoshuaMoves)
+            self.JoshuaMoves+=1
+        else:
+            #minimax
+            move = ((1,1),(1,3))
+        self.MovePiece(move[0],move[1],self.Pieces,True)
         
         
-        pass
 
 
 
@@ -178,18 +210,7 @@ class Chess():
         while run:
             if self.Turn == JoshuaTurn:
                 #joshua turn
-
-
-
-                 self.MovePiece((1,1),(1,3),self.Pieces,True)
-
-
-
-
-
-
-
-
+                self.Joshua()
             else:
                 Event = pygame.event.poll()
                 if Event.type == pygame.QUIT:
