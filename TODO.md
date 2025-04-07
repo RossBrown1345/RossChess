@@ -1,14 +1,14 @@
 ### TO DO:
 
-~~ make chosen piece move to new destination ~~
+diversify opening book
 
-~~then hang fire on GUI, work on possible moves for each piece~~
+add main menu screen
+
+add game timer and score counter
+
+have another crack at check
 
 # known problems:
-
-
-removing invalid moves will only remove every other invalid move, investigate, remove()
-maybe accumulate invalid moves then remove as a list
 
 # possible moves for
 
@@ -53,7 +53,7 @@ castling
 ~~promotion~~
 en passant
 
-
+# gameplay
 
 make main menu for pvp or pvJoshua
 
@@ -61,8 +61,8 @@ improve sprites
 
 Joshua : 
 
-minimax
-AB pruning
+~~minimax~~
+~~AB pruning~~
 opening book
 iterative deepening
 identify forks
