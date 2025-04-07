@@ -169,7 +169,7 @@ class Chess():
                 self.MovePiece(move[0],move[1],JoshuaBoard,False)
                 JoshuaColour = (self.ChangeColour(JoshuaColour))
                 _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,False,v,mc,alpha,beta)
-                if newValue > hValue:
+                if newValue >= hValue:
                     hValue = newValue
                     bestMove = move
                     if depth == 3:
@@ -195,7 +195,7 @@ class Chess():
                 self.MovePiece(move[0],move[1],JoshuaBoard,False)
                 JoshuaColour = (self.ChangeColour(JoshuaColour))
                 _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,True,v,mc,alpha,beta)
-                if newValue < hValue:
+                if newValue <= hValue:
                     hValue = newValue
                     bestMove = move
                 mc+=1
@@ -233,7 +233,8 @@ class Chess():
 
     def IsGameOver(self):
         score = self.Evaluate(self.Pieces,False)
-        return (score < 40 or score > -40)
+        print("score :",score,"\n")
+        return (score > 40 or score < -40)
 
 
 
@@ -256,7 +257,8 @@ class Chess():
             if self.Turn == JoshuaTurn:
                 #joshua turn
                 self.Joshua()
-                run = self.IsGameOver()
+                run = not (self.IsGameOver())
+
             else:
                 Event = pygame.event.poll()
                 if Event.type == pygame.QUIT:
@@ -292,7 +294,6 @@ class Chess():
                                 if self.IsValidMove(chosenPiece,mouseLoc): ### validate input move
                                     self.MovePiece(chosenPiece.GetLocation() , mouseLoc,self.Pieces,True) ### move the first piece to the capture piece
                                     if capturePiece.GetPieceType() == "King":
-                                        self.Winner = chosenPiece.GetColour()
                                         run = False
                                 self.isPieceChosen = False ### a piece has been moved, deselect all
                                 peacefulMove = False ### this was not a peaceful move
@@ -314,6 +315,7 @@ class Chess():
                 # self.DisplayBoard()
 
                 # self.MakeMove()
+        self.Winner = "White" if self.Evaluate(self.Pieces,False) > 41 else "Black"
         print("Game Over, winner : ",self.Winner)
 
 
