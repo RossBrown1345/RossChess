@@ -134,7 +134,7 @@ class Chess():
         return allMoves
     
 
-    def MiniMax(self,gameState,depth,JoshuaColour,max,v,mc):
+    def MiniMax(self,gameState,depth,JoshuaColour,maximise,v,mc,alpha : int,beta : int):
         ### to return the best move and game score
         ### new params to add, move counter, A,B,Verbose
         
@@ -161,14 +161,14 @@ class Chess():
             mc+=1
             return None, gameScore,mc
         JoshuaMoves = self.JoshuaGetAllMoves(gameState,JoshuaColour)
-        if max: ### maximising for Joshua
+        if maximise: ### maximising for Joshua
             bestMove = JoshuaMoves[0]
             hValue = -100000000000000000000 #heuristic value starts at - infinite
             for move in JoshuaMoves:
                 JoshuaBoard = copy.deepcopy(gameState)
                 self.MovePiece(move[0],move[1],JoshuaBoard,False)
                 JoshuaColour = (self.ChangeColour(JoshuaColour))
-                _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,False,v,mc)
+                _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,False,v,mc,alpha,beta)
                 if newValue > hValue:
                     hValue = newValue
                     bestMove = move
@@ -180,6 +180,10 @@ class Chess():
                     print("current move ",move)
                     print("hValue : ",hValue)
                     print("move count : ",mc,"\n")
+                ###ab pruning
+                alpha = max(alpha,hValue)
+                if hValue >= beta:
+                    break
                 
             return bestMove, hValue,mc
         
@@ -190,7 +194,7 @@ class Chess():
                 JoshuaBoard = copy.deepcopy(gameState)
                 self.MovePiece(move[0],move[1],JoshuaBoard,False)
                 JoshuaColour = (self.ChangeColour(JoshuaColour))
-                _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,True,v,mc)
+                _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,True,v,mc,alpha,beta)
                 if newValue < hValue:
                     hValue = newValue
                     bestMove = move
@@ -200,7 +204,9 @@ class Chess():
                     print("current move ",move)
                     print("hValue",hValue)
                     print("move count : ",mc,"\n")
-                
+                beta = max(beta,hValue)
+                if hValue <= alpha:
+                    break
 
             return bestMove, hValue,mc
 
@@ -212,12 +218,14 @@ class Chess():
     def Joshua(self):
         ### once minimax work, check opening book moves are valid, if not, use minimax
         ### beginning of Joshua, start with opening book, build minimax, then ab pruning, then iterative deeping
+        ### Joshua depth
+        depth = 4
         if self.JoshuaMoves <= 2:
             move = self.JoshuaOpeningBook(self.JoshuaMoves)
             self.JoshuaMoves+=1
         else:
             #minimax
-            move,_,mc = self.MiniMax(self.Pieces,3,"Black",True,True,0)
+            move,_,mc = self.MiniMax(self.Pieces,depth,"Black",True,True,0,-99,99)
             print(mc,"Moves checked! and i think",move,"is the play!")
         self.MovePiece(move[0],move[1],self.Pieces,True)
         
