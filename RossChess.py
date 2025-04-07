@@ -10,6 +10,7 @@ class Chess():
         self.Board = [["" for x in range(8)] for y in range(8)] ### create 8*8 2D list to act as the board
         self.Pieces = [] ### this list contains all pieces
         self.Turn = "White" ### White will play first
+        self.JoshuaColour = "Black"
         self.Winner = None
         self.JoshuaMoves = 0
         #self.WhiteCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
@@ -79,7 +80,7 @@ class Chess():
         pygame.display.update()
         #print("done")
     
-    def Evaluate(self,gameState):
+    def Evaluate(self,gameState,Joshua):
         ### for now have both scores be positive
         # if turns out need black to be negative, simple change
 
@@ -91,16 +92,8 @@ class Chess():
             else:
                 blackScore += piece.GetScore()
         
-        #print ("white score : ",whiteScore,"\nblack score : ",blackScore)
-
-        # if whiteScore > blackScore:
-        #     print("white +",whiteScore - blackScore)
-        # elif blackScore != whiteScore:
-        #     print("black +",blackScore - whiteScore)
-        # else:
-        #     print("even game")
-
-        return whiteScore - blackScore
+        hValue = whiteScore - blackScore if not Joshua else blackScore - whiteScore
+        return hValue
 
     def Promote(self,chosenPiece,colour):
         promote = input(print("Enter the piece you would like to promote to : "))
@@ -128,23 +121,6 @@ class Chess():
 
     def IsValidMove(self,checkPiece,destination):
         ### get piece and destination, return true if destination in possible moves
-        
-        # for piece in self.Pieces:
-        #     if piece.GetPieceType() == "King" and piece.GetColour() == self.Turn:
-        #         king = piece
-        #         break
-        
-        ### get deep copy of fake pieces,
-        ### for each possible move, make the move, enquire if still in check, remove from possible moves
-
-
-        #call remove invalid with checkPiece.GetLocation()
-
-        #d = self.RemoveInvalid(possibleMoves,checkPiece.GetLocation(),king)
-
-
-
-        #### here we can check if a move will exit a check
         possibleMoves = checkPiece.PossibleMoves(self.Pieces)
         return destination in possibleMoves
     
@@ -158,12 +134,12 @@ class Chess():
         return allMoves
     
 
-    def MiniMax(self,gameState,depth,JoshuaColour,max):
+    def MiniMax(self,gameState,depth,JoshuaColour,max,v,mc):
         ### to return the best move and game score
+        ### new params to add, move counter, A,B,Verbose
         
-        
-        ### this will maxise for white, cleverness to come and switch sides
-
+        ### return bestMove, hvalue, in recursive calls, take _, newValue, mc
+        ### to avoid wasted resources
 
         ### base minimax, 
         ### check if terminal node reached
@@ -179,23 +155,54 @@ class Chess():
         #     for each move, make move on deepcopy then rec call with maxmising true and depth -1
         #     when terminal node reached (depth = 0 or gameover)
         #     eval move, and if less than H value set move to best move
-        gameScore = self.Evaluate(gameState)
+        gameScore = self.Evaluate(gameState,JoshuaColour)
         terminalNode = depth == 0 or (gameScore > 40 or gameScore < -40)
         if terminalNode: ### check if terminal node reached
-            return None, gameScore
-        
-
+            mc+=1
+            return None, gameScore,mc
         JoshuaMoves = self.JoshuaGetAllMoves(gameState,JoshuaColour)
         if max: ### maximising for Joshua
             bestMove = JoshuaMoves[0]
             hValue = -100000000000000000000 #heuristic value starts at - infinite
             for move in JoshuaMoves:
-                JoshuaBoard = copy.deepcopy(self.Pieces)
+                JoshuaBoard = copy.deepcopy(gameState)
                 self.MovePiece(move[0],move[1],JoshuaBoard,False)
-                _,
-    
+                JoshuaColour = (self.ChangeColour(JoshuaColour))
+                _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,False,v,mc)
+                if newValue > hValue:
+                    hValue = newValue
+                    bestMove = move
+                    if depth == 3:
+                        print("new bestMove : ",bestMove)
+                mc+=1
+                if v and mc % 10000 == 0:
+                    print("max : ")
+                    print("current move ",move)
+                    print("hValue : ",hValue)
+                    print("move count : ",mc,"\n")
+                
+            return bestMove, hValue,mc
+        
+        else: ###minimising
+            bestMove = JoshuaMoves[0]
+            hValue = 100000000000000000000 #heuristic value starts at infinite
+            for move in JoshuaMoves:
+                JoshuaBoard = copy.deepcopy(gameState)
+                self.MovePiece(move[0],move[1],JoshuaBoard,False)
+                JoshuaColour = (self.ChangeColour(JoshuaColour))
+                _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,True,v,mc)
+                if newValue < hValue:
+                    hValue = newValue
+                    bestMove = move
+                mc+=1
+                if v and mc % 10000 == 0:
+                    print("min : ")
+                    print("current move ",move)
+                    print("hValue",hValue)
+                    print("move count : ",mc,"\n")
+                
 
-        pass
+            return bestMove, hValue,mc
 
 
     def JoshuaOpeningBook(self,moveCount):
@@ -205,21 +212,20 @@ class Chess():
     def Joshua(self):
         ### once minimax work, check opening book moves are valid, if not, use minimax
         ### beginning of Joshua, start with opening book, build minimax, then ab pruning, then iterative deeping
-        ### minimax
-        ### get all possible moves, deep copy self.pieces
-        ### for each move, make move, evaluate, if new best move, return
-        ### have parameter for min and max,
-        ### return best mvoe
         if self.JoshuaMoves <= 2:
             move = self.JoshuaOpeningBook(self.JoshuaMoves)
             self.JoshuaMoves+=1
         else:
             #minimax
-            move = ((1,1),(1,3))
+            move,_,mc = self.MiniMax(self.Pieces,3,"Black",True,True,0)
+            print(mc,"Moves checked! and i think",move,"is the play!")
         self.MovePiece(move[0],move[1],self.Pieces,True)
         
         
 
+    def IsGameOver(self):
+        score = self.Evaluate(self.Pieces,False)
+        return (score < 40 or score > -40)
 
 
 
@@ -242,6 +248,7 @@ class Chess():
             if self.Turn == JoshuaTurn:
                 #joshua turn
                 self.Joshua()
+                run = self.IsGameOver()
             else:
                 Event = pygame.event.poll()
                 if Event.type == pygame.QUIT:
@@ -290,8 +297,6 @@ class Chess():
                             elif chosenPiece.GetColour() == "Black" and chosenPiece.y == 7: ### black pawn is valid for promotion
                                 self.Promote(chosenPiece,"Black")
                         ### at this point any move that would be made, has been made
-                        ### check if a king in check
-                        #whiteScore = self.Evaluate()
                         chosenPiece = None ### deselect all
                         self.isPieceChosen = False
                         #self.UpdateCheck()
@@ -373,11 +378,6 @@ class Chess():
 
 
                     ### at this point any move that would be made, has been made
-
-                    ### check if a king in check
-    
-
-                    #whiteScore = self.Evaluate()
                     chosenPiece = None ### deselect all
                     self.isPieceChosen = False
                     #self.UpdateCheck()
@@ -397,29 +397,11 @@ class Chess():
         print("Game Over, winner : ",self.Winner)
 
 
-
-    def InCheck(self,King,Pieces):
-        ### may cause issues !!!!
-
-        ### search all opp peices, return true if king in check
-        ### have the current king passed as a paramater, compare coords to every opp possible move
-        for piece in Pieces:
-            if piece.GetColour() != King.GetColour(): ### opp peice
-                for move in piece.PossibleMoves(Pieces):
-                    if move == King:
-                        print(King.GetColour(),"King is in check")
-                        return True
-        return False
-    
-    def UpdateCheck(self):
-        for piece in self.Pieces:
-            if piece.GetPieceType() == "King":
-                if piece.GetColour() == "White":
-                    whiteKing = piece
-                else:
-                    blackKing = piece
-        self.WhiteCheckActive = self.InCheck(whiteKing,self.Pieces)
-        self.BlackCheckActive = self.InCheck(blackKing,self.Pieces)
+    def ChangeColour(self, colour):
+        if colour == "White":
+            return "Black"
+        else:
+            return "White"
 
 
     def ChangeTurn(self):
@@ -513,28 +495,7 @@ class Chess():
     # define a method that will take a peice, move it to the desired location, and remove any opponent in that
     # location from self.pieces
 
-    def RemoveInvalid(self,possibleMoves,startLoc,king):
-        fakeWhiteCheck = False
-        fakeBlackCheck = False
-        if self.WhiteCheckActive:
-            fakeWhiteCheck = True
-        if self.BlackCheckActive:
-            fakeBlackCheck = True
-        for move in possibleMoves:
-            fakePieces = copy.deepcopy(self.Pieces)
-            #print("pre move",fakePieces)
-            self.MovePiece(startLoc,move,fakePieces,False)
-            if self.Turn == "White":
-                fakeWhiteCheck = self.InCheck(king,fakePieces)
-                if fakeWhiteCheck:
-                    possibleMoves.remove(move)
-            else:
-                #print("post move",fakePieces)
-                fakeBlackCheck = self.InCheck(king,fakePieces)
-                if fakeBlackCheck:
-                    possibleMoves.remove(move)
 
-        return possibleMoves
 
     def MovePiece(self,startLoc,endLoc,gameState,real): ### this removes a piece from the board
         #print(self.Pieces)
