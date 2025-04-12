@@ -2,6 +2,8 @@
 
 diversify opening book
 
+update sprites
+
 add main menu screen
 
 add game timer and score counter
@@ -9,6 +11,12 @@ add game timer and score counter
 have another crack at check
 
 # known problems:
+
+
+
+# Opening book
+have each line be an [array] with "name", length of seq, ((seq))
+before each move, run a depth 2 minimax to check for immediate danger
 
 # possible moves for
 

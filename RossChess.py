@@ -3,6 +3,7 @@ import time
 import pygame
 import Pieces
 import copy
+import random
 
 class Chess():
     def __init__(self): ### game manager init
@@ -13,6 +14,7 @@ class Chess():
         self.JoshuaColour = "Black"
         self.Winner = None
         self.JoshuaMoves = 0
+        self.JoshuaBook = 0 #random.randint(0,2)
         #self.WhiteCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
         #self.BlackCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
         self.CreatePieces() ### create all pieces and add to Pieces
@@ -211,9 +213,15 @@ class Chess():
             return bestMove, hValue,mc
 
 
-    def JoshuaOpeningBook(self,moveCount):
-        openingBooks = (((4, 1),(4, 3)),((1, 0),(2, 2)),((3, 1),(3, 2)))
-        return openingBooks[moveCount]
+    def JoshuaOpeningBook(self,moveCount,book):
+        ### move to reading from text file
+        ### get this implementation working first, then make it only call this once at the start
+        with open("OpeningBook.txt") as ob:
+            openings = ob.readlines()
+            openingBook = openings[book].split(",")
+        print(openingBook)
+        print(openingBook[moveCount])
+        return openingBook[moveCount]
 
     def Joshua(self):
         ### once minimax work, check opening book moves are valid, if not, use minimax
@@ -221,7 +229,7 @@ class Chess():
         ### Joshua depth
         depth = 4
         if self.JoshuaMoves <= 2:
-            move = self.JoshuaOpeningBook(self.JoshuaMoves)
+            move = self.JoshuaOpeningBook(self.JoshuaMoves,self.JoshuaBook)
             self.JoshuaMoves+=1
         else:
             #minimax
