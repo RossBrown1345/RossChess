@@ -226,9 +226,10 @@ class Chess():
         ### once minimax work, check opening book moves are valid, if not, use minimax
         ### beginning of Joshua, start with opening book, build minimax, then ab pruning, then iterative deeping
         ### Joshua depth
-        depth = 4
+        depth = 1
         if self.JoshuaMoves <= 2:
             move = self.JoshuaOpeningBook(self.JoshuaMoves,self.JoshuaBook)
+
             self.JoshuaMoves+=1
         else:
             #minimax

@@ -18,6 +18,26 @@ have another crack at check
 have each line be an [array] with "name", length of seq, ((seq))
 before each move, run a depth 2 minimax to check for immediate danger
 
+# add promotion (and for Joshua)
+promotion functionality already works
+have discrete non possible values for these moves
+when in movepeice have check for special move
+perform extra changes to the supplied gamestate
+
+
+# add castling (and for Joshua)
+have checks for all preconditions (bar being in check)
+then have function to change supplied gamestate
+
+have discrete non possible values for these moves
+when in movepeice have check for special move
+perform extra changes to the supplied gamestate
+
+
+
+
+
+
 # possible moves for
 
 ~~pawns~~
