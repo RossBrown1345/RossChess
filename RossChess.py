@@ -157,25 +157,23 @@ class Chess():
         #     for each move, make move on deepcopy then rec call with maxmising true and depth -1
         #     when terminal node reached (depth = 0 or gameover)
         #     eval move, and if less than H value set move to best move
-        gameScore = self.Evaluate(gameState,JoshuaColour)
+        gameScore = self.Evaluate(gameState,True)
         terminalNode = depth == 0 or (gameScore > 40 or gameScore < -40)
         if terminalNode: ### check if terminal node reached
             mc+=1
             return None, gameScore,mc
         JoshuaMoves = self.JoshuaGetAllMoves(gameState,JoshuaColour)
+        bestMove = JoshuaMoves[0]
         if maximise: ### maximising for Joshua
-            bestMove = JoshuaMoves[0]
             hValue = -100000000000000000000 #heuristic value starts at - infinite
             for move in JoshuaMoves:
                 JoshuaBoard = copy.deepcopy(gameState)
                 self.MovePiece(move[0],move[1],JoshuaBoard,False)
                 JoshuaColour = (self.ChangeColour(JoshuaColour))
                 _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,False,v,mc,alpha,beta)
-                if newValue >= hValue:
+                if newValue > hValue:
                     hValue = newValue
                     bestMove = move
-                    if depth == 3:
-                        print("new bestMove : ",bestMove)
                 mc+=1
                 if v and mc % 10000 == 0:
                     print("max : ")
@@ -190,14 +188,13 @@ class Chess():
             return bestMove, hValue,mc
         
         else: ###minimising
-            bestMove = JoshuaMoves[0]
             hValue = 100000000000000000000 #heuristic value starts at infinite
             for move in JoshuaMoves:
                 JoshuaBoard = copy.deepcopy(gameState)
                 self.MovePiece(move[0],move[1],JoshuaBoard,False)
                 JoshuaColour = (self.ChangeColour(JoshuaColour))
                 _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,True,v,mc,alpha,beta)
-                if newValue <= hValue:
+                if newValue < hValue:
                     hValue = newValue
                     bestMove = move
                 mc+=1
@@ -209,7 +206,6 @@ class Chess():
                 beta = max(beta,hValue)
                 if hValue <= alpha:
                     break
-
             return bestMove, hValue,mc
 
 
@@ -218,10 +214,13 @@ class Chess():
         ### get this implementation working first, then make it only call this once at the start
         with open("OpeningBook.txt") as ob:
             openings = ob.readlines()
-            openingBook = openings[book].split(",")
-        print(openingBook)
-        print(openingBook[moveCount])
-        return openingBook[moveCount]
+            print(openings)
+            openingBook = openings[book].split(">")
+        move = openingBook[moveCount]
+        print(move)
+        move = tuple(map(int, move.split(',')))
+        print(move)
+        return ((move[0],move[1],),(move[2],move[3],))
 
     def Joshua(self):
         ### once minimax work, check opening book moves are valid, if not, use minimax
@@ -233,8 +232,8 @@ class Chess():
             self.JoshuaMoves+=1
         else:
             #minimax
-            move,_,mc = self.MiniMax(self.Pieces,depth,"Black",True,True,0,-99,99)
-            print(mc,"Moves checked! and i think",move,"is the play!")
+            move,value,mc = self.MiniMax(self.Pieces,depth,"Black",True,True,0,-99,99)
+            print(mc,"Moves checked! and i think",move,"is the play!\nThe value after 4 moves is :",value)
         self.MovePiece(move[0],move[1],self.Pieces,True)
         
         
@@ -256,7 +255,6 @@ class Chess():
         self.Window.fill((255,255,255))
         self.GUIUpdateBoard(None)
         ### when choosing side, have check for user selected side
-        print("wahoo")
         playerTurn = "White"
         JoshuaTurn = "Black"
         self.isPieceChosen = False
