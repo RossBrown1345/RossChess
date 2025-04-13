@@ -14,7 +14,9 @@ class Chess():
         self.JoshuaColour = "Black"
         self.Winner = None
         self.JoshuaMoves = 0
-        self.JoshuaBook = 0 #random.randint(0,2)
+        self.JoshuaBookName = 0 #name of opening
+        self.JoshuaBookCount = 0 #number of black moves in opening
+        self.JoshuaBookMoves = 0 # move tuples
         #self.WhiteCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
         #self.BlackCheckActive = False ### this is a boolean to check if a king is put in check by a move, this will not catch self checks, fix later
         self.CreatePieces() ### create all pieces and add to Pieces
@@ -165,16 +167,15 @@ class Chess():
         JoshuaMoves = self.JoshuaGetAllMoves(gameState,JoshuaColour)
         bestMove = JoshuaMoves[0]
         if maximise: ### maximising for Joshua
-            hValue = -100000000000000000000 #heuristic value starts at - infinite
+            hValue = -10000000 #heuristic value starts at - infinite
             for move in JoshuaMoves:
                 JoshuaBoard = copy.deepcopy(gameState)
                 self.MovePiece(move[0],move[1],JoshuaBoard,False)
-                JoshuaColour = (self.ChangeColour(JoshuaColour))
-                _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,False,v,mc,alpha,beta)
+                nextColour = (self.ChangeColour(JoshuaColour))
+                _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,nextColour,False,v,mc,alpha,beta)
                 if newValue > hValue:
                     hValue = newValue
                     bestMove = move
-                mc+=1
                 if v and mc % 10000 == 0:
                     print("max : ")
                     print("current move ",move)
@@ -188,52 +189,58 @@ class Chess():
             return bestMove, hValue,mc
         
         else: ###minimising
-            hValue = 100000000000000000000 #heuristic value starts at infinite
+            hValue = 10000000 #heuristic value starts at infinite
             for move in JoshuaMoves:
                 JoshuaBoard = copy.deepcopy(gameState)
                 self.MovePiece(move[0],move[1],JoshuaBoard,False)
-                JoshuaColour = (self.ChangeColour(JoshuaColour))
-                _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,JoshuaColour,True,v,mc,alpha,beta)
+                nextColour = (self.ChangeColour(JoshuaColour))
+                _, newValue,mc = self.MiniMax(JoshuaBoard,depth-1,nextColour,True,v,mc,alpha,beta)
                 if newValue < hValue:
                     hValue = newValue
                     bestMove = move
-                mc+=1
                 if v and mc % 10000 == 0:
                     print("min : ")
                     print("current move ",move)
                     print("hValue",hValue)
                     print("move count : ",mc,"\n")
-                beta = max(beta,hValue)
+                beta = min(beta,hValue)
                 if hValue <= alpha:
                     break
             return bestMove, hValue,mc
 
-
-    def JoshuaOpeningBook(self,moveCount,book):
-        ### move to reading from text file
-        ### get this implementation working first, then make it only call this once at the start
+    def JoshuaInitBook(self):
         with open("OpeningBook.txt") as ob:
             openings = ob.readlines()
-            print(openings)
+            book = random.randint(0,len(openings)-1)
+            #method will be, name>movecount>moves
             openingBook = openings[book].split(">")
-        move = openingBook[moveCount]
-        print(move)
+        self.JoshuaBookName = openingBook[0]
+        print("Hmm i feel like playing The",self.JoshuaBookName)
+        self.JoshuaBookCount = openingBook[1]
+        self.JoshuaBookMoves = openingBook[2:]
+        
+    def JoshuaOpeningBook(self,moveCount):
+        ### move to reading from text file
+        ### get this implementation working first, then make it only call this once at the start
+        move = self.JoshuaBookMoves[moveCount]
         move = tuple(map(int, move.split(',')))
-        print(move)
         return ((move[0],move[1],),(move[2],move[3],))
 
     def Joshua(self):
         ### once minimax work, check opening book moves are valid, if not, use minimax
         ### beginning of Joshua, start with opening book, build minimax, then ab pruning, then iterative deeping
         ### Joshua depth
-        depth = 1
+        depth = 4
         if self.JoshuaMoves <= 2:
-            move = self.JoshuaOpeningBook(self.JoshuaMoves,self.JoshuaBook)
-
+            # baseValue = self.Evaluate(self.Pieces,True)
+            # safetyMove,value,_ = self.MiniMax(self.Pieces,2,self.JoshuaColour,True,False,0,-99,99)
+            # move = safetyMove if value > baseValue else self.JoshuaOpeningBook(self.JoshuaMoves)
+            # print("basevalue :",baseValue,"\nvalue :",value)
+            move = self.JoshuaOpeningBook(self.JoshuaMoves)
             self.JoshuaMoves+=1
         else:
             #minimax
-            move,value,mc = self.MiniMax(self.Pieces,depth,"Black",True,True,0,-99,99)
+            move,value,mc = self.MiniMax(self.Pieces,depth,"Black",True,True,0,-999,999)
             print(mc,"Moves checked! and i think",move,"is the play!\nThe value after 4 moves is :",value)
         self.MovePiece(move[0],move[1],self.Pieces,True)
         
@@ -258,6 +265,8 @@ class Chess():
         ### when choosing side, have check for user selected side
         playerTurn = "White"
         JoshuaTurn = "Black"
+        ### get opening book, assign to self.openingbook
+        self.JoshuaInitBook()
         self.isPieceChosen = False
         run = True
         while run:
